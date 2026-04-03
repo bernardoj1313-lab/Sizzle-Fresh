@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sizzle — Demand More</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #ff5c1a;
+  --orange2: #ff8c42;
+  --bg: #faf8f5;
+  --s1: #f2efe9;
+  --s2: #eae6de;
+  --border: rgba(0,0,0,0.08);
+  --text: #1a1a1a;
+  --muted: rgba(0,0,0,0.45);
+  --dim: rgba(0,0,0,0.25);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  padding:20px 60px;
+  display:flex; align-items:center; justify-content:space-between;
+  transition: background 0.3s, backdrop-filter 0.3s;
+}
+nav.scrolled { background:rgba(250,248,245,0.96); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+
+.wordmark { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.logo-icon { width:36px; height:36px; flex-shrink:0; }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; color:#1a1a1a; line-height:1; }
+.logo-text .dot { color:var(--orange); }
+
+.nav-right { display:flex; align-items:center; gap:12px; }
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:10px 20px; border-radius:10px;
+  font-size:13px; font-weight:600; cursor:pointer; border:none;
+  font-family:'DM Sans',sans-serif; transition:all 0.15s; text-decoration:none;
+}
+.btn-ghost { background:transparent; border:1px solid rgba(0,0,0,0.15); color:rgba(0,0,0,0.5); }
+.btn-ghost:hover { border-color:rgba(0,0,0,0.3); color:var(--text); }
+.nav-back-link { font-size:13px; color:rgba(0,0,0,.4); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color 0.15s; }
+.nav-back-link:hover { color:#1a1a1a; }
+.btn-orange { background:var(--orange); color:#fff; }
+.btn-orange:hover { background:#e04a0c; transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,92,26,0.3); }
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+  padding:120px 40px 100px;
+  text-align:center;
+}
+
+.hero-glow {
+  position:absolute; width:800px; height:800px;
+  background:radial-gradient(circle, rgba(255,92,26,0.08) 0%, transparent 70%);
+  top:50%; left:50%; transform:translate(-50%,-58%);
+  pointer-events:none;
+  animation:gp 5s ease-in-out infinite;
+}
+@keyframes gp { 0%,100%{opacity:.7;transform:translate(-50%,-58%) scale(1)} 50%{opacity:1;transform:translate(-50%,-58%) scale(1.06)} }
+
+.hero-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse at center, transparent 25%, black 100%);
+  pointer-events:none;
+}
+
+.hero-grain {
+  position:absolute; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:1;
+}
+
+.hero-content { position:relative; z-index:2; max-width:860px; }
+
+.hero-pill {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,92,26,0.1); border:1px solid rgba(255,92,26,0.22);
+  border-radius:20px; padding:6px 16px;
+  font-size:11px; font-weight:700; color:var(--orange);
+  letter-spacing:1.5px; text-transform:uppercase;
+  margin-bottom:28px;
+  animation:fu .6s ease both;
+}
+.pill-dot { width:6px; height:6px; border-radius:50%; background:var(--orange); animation:bl 1.5s infinite; }
+@keyframes bl { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero-h1 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(64px,11vw,148px);
+  line-height:.88; letter-spacing:2px; color:#1a1a1a;
+  margin-bottom:10px;
+  animation:fu .6s ease .1s both;
+}
+.hero-h1 .o { color:var(--orange); }
+.hero-h1 .ghost { -webkit-text-stroke:2px rgba(0,0,0,.15); color:transparent; }
+
+.hero-tagline {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(20px,3vw,38px);
+  letter-spacing:10px; color:var(--orange);
+  margin-bottom:30px;
+  animation:fu .6s ease .2s both;
+}
+
+.hero-sub {
+  font-size:clamp(16px,1.8vw,20px); font-weight:300;
+  color:rgba(0,0,0,.5); line-height:1.65;
+  max-width:560px; margin:0 auto 48px;
+  animation:fu .6s ease .3s both;
+}
+.hero-sub strong { color:rgba(0,0,0,.8); font-weight:500; }
+
+.hero-cta-row {
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  animation:fu .6s ease .4s both;
+}
+
+.btn-hero-main {
+  background:var(--orange); color:#fff;
+  padding:18px 48px; border-radius:16px;
+  font-size:17px; font-weight:800;
+  border:none; cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  transition:all .2s; letter-spacing:.3px;
+  box-shadow:0 0 0 0 rgba(255,92,26,0);
+}
+.btn-hero-main:hover { background:#e04a0c; transform:translateY(-3px); box-shadow:0 16px 40px rgba(255,92,26,0.35); }
+
+.hero-sub-cta { font-size:13px; color:var(--muted); }
+.hero-sub-cta span { color:rgba(0,0,0,.65); font-weight:500; }
+
+/* scroll indicator */
+.hero-scroll {
+  position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  color:rgba(0,0,0,.25); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  z-index:2; animation:fu .6s ease .7s both;
+}
+.scroll-line { width:1px; height:40px; background:linear-gradient(to bottom,var(--orange),transparent); animation:sl 2s ease-in-out infinite; }
+@keyframes sl { 0%,100%{opacity:.6;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(.6)} }
+
+@keyframes fu { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  overflow:hidden; padding:14px 0;
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  background:var(--s1);
+}
+.marquee-track { display:flex; animation:mq 28s linear infinite; width:max-content; }
+.mq-item {
+  display:flex; align-items:center; gap:18px; padding:0 36px;
+  font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:2px; color:rgba(0,0,0,0.3); white-space:nowrap;
+}
+.mq-dot { width:5px; height:5px; border-radius:50%; background:var(--orange); flex-shrink:0; }
+@keyframes mq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ── HOW IT WORKS ── */
+.how { padding:100px 60px; max-width:1100px; margin:0 auto; }
+
+.sec-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:12px; }
+.sec-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(40px,5vw,72px); letter-spacing:1px; color:#1a1a1a; line-height:1;
+  margin-bottom:16px;
+}
+.sec-body { font-size:17px; color:rgba(0,0,0,.5); line-height:1.65; font-weight:300; max-width:500px; }
+
+.how-steps {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:60px;
+}
+.step {
+  background:var(--s1); border:1px solid var(--border); border-radius:20px;
+  padding:32px 28px; position:relative; overflow:hidden;
+  transition:border-color .2s, transform .2s;
+}
+.step:hover { border-color:rgba(255,92,26,.25); transform:translateY(-4px); }
+.step-n {
+  font-family:'Bebas Neue',sans-serif; font-size:80px; line-height:1;
+  color:rgba(255,92,26,.08); position:absolute; top:10px; right:18px;
+  pointer-events:none;
+}
+.step-ic {
+  width:48px; height:48px; border-radius:14px;
+  background:rgba(255,92,26,.1); border:1px solid rgba(255,92,26,.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; margin-bottom:18px;
+}
+.step-title { font-size:18px; font-weight:700; color:#1a1a1a; margin-bottom:8px; }
+.step-desc { font-size:14px; color:rgba(0,0,0,.5); line-height:1.6; }
+
+.step-connector {
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(255,92,26,.3); font-size:24px;
+  margin-top:32px;
+}
+
+/* ── LIVE DROPS SECTION ── */
+.drops-section {
+  background:#f2efe9;
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:100px 60px;
+}
+.drops-inner { max-width:1100px; margin:0 auto; }
+.drops-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:40px; }
+.drops-sub { font-size:15px; color:rgba(0,0,0,.45); font-weight:300; }
+
+.drops-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+
+.drop-card {
+  border-radius:20px; overflow:hidden; cursor:pointer;
+  background:#fff; border:1px solid var(--border);
+  transition:transform .2s, border-color .2s;
+  position:relative;
+}
+.drop-card:hover { transform:translateY(-4px); border-color:rgba(255,92,26,.3); }
+.drop-card.urgent { border-color:rgba(239,68,68,.3); }
+
+.drop-card-img {
+  height:180px; position:relative; overflow:hidden;
+  background:var(--s2);
+}
+.drop-card-img-inner {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:72px;
+  position:relative;
+}
+.drop-img-gradient {
+  position:absolute; inset:0;
+  background:linear-gradient(to bottom, transparent 40%, var(--s2) 100%);
+}
+
+/* unique bg per card */
+.bg-fig { background:radial-gradient(ellipse at 60% 40%, rgba(255,140,66,.5) 0%, #2a1a0a 100%); }
+.bg-raw { background:radial-gradient(ellipse at 60% 40%, rgba(126,212,232,.5) 0%, #081a22 100%); }
+.bg-circa { background:radial-gradient(ellipse at 60% 40%, rgba(212,168,67,.5) 0%, #1a150a 100%); }
+
+.drop-tag {
+  position:absolute; top:12px; left:12px;
+  font-size:11px; font-weight:800; padding:5px 10px; border-radius:7px;
+  letter-spacing:.5px; text-transform:uppercase; z-index:2;
+}
+.dt-pct { background:var(--orange); color:#fff; }
+.dt-free { background:#22c55e; color:#fff; }
+.dt-crit { background:#ef4444; color:#fff; animation:cp 1.2s infinite; }
+@keyframes cp { 0%,100%{opacity:1} 50%{opacity:.65} }
+
+.drop-spots {
+  position:absolute; top:12px; right:12px;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(6px);
+  border:1px solid rgba(0,0,0,.12); border-radius:20px;
+  padding:4px 10px; display:flex; align-items:center; gap:4px; z-index:2;
+}
+.ds-n { font-family:'Bebas Neue',sans-serif; font-size:18px; line-height:1; color:var(--orange); font-weight:700; }
+.ds-n.crit { color:#ef4444; }
+.ds-l { font-size:10px; color:rgba(255,255,255,.7); text-transform:uppercase; letter-spacing:.5px; }
+.ds-dot { width:6px; height:6px; border-radius:50%; background:var(--orange); animation:bl 1s infinite; }
+
+.drop-body { padding:14px 16px 18px; }
+.drop-rest { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:.5px; color:#1a1a1a; margin-bottom:4px; }
+.drop-deal { font-size:14px; color:rgba(0,0,0,.7); font-weight:500; margin-bottom:10px; }
+.drop-dish { font-size:11px; color:var(--orange); font-style:italic; font-family:'Fraunces',serif; margin-bottom:10px; }
+
+.drop-bar-wrap { margin-bottom:12px; }
+.drop-bar-top { display:flex; justify-content:space-between; margin-bottom:4px; }
+.drop-bar-lbl { font-size:11px; color:rgba(0,0,0,.4); }
+.drop-bar-count { font-size:11px; font-weight:600; color:var(--orange); }
+.drop-bar-bg { height:3px; background:rgba(255,255,255,.07); border-radius:2px; overflow:hidden; }
+.drop-bar-fill { height:100%; border-radius:2px; background:var(--orange); }
+.drop-bar-fill.low { background:#ef4444; }
+
+.drop-footer { display:flex; align-items:center; justify-content:space-between; }
+.drop-meta { font-size:12px; color:rgba(0,0,0,.35); }
+.drop-claim-btn {
+  background:rgba(0,0,0,.05); border:1px solid rgba(0,0,0,.12);
+  color:#1a1a1a; border-radius:9px; padding:8px 16px;
+  font-size:11px; font-weight:800; cursor:pointer;
+  font-family:'DM Sans',sans-serif; transition:all .15s;
+  text-transform:uppercase; letter-spacing:.5px;
+}
+.drop-claim-btn:hover { background:var(--orange); border-color:var(--orange); }
+.drop-claim-btn.claimed { background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.25); color:#22c55e; }
+
+.drops-cta-row { text-align:center; margin-top:48px; }
+.drops-cta-text { font-size:14px; color:rgba(0,0,0,.45); margin-bottom:16px; }
+
+/* ── STATUS TIERS ── */
+.tiers { padding:100px 60px; max-width:1100px; margin:0 auto; }
+.tiers-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:60px; }
+
+.tier-card {
+  border-radius:20px; padding:36px 30px; position:relative; overflow:hidden;
+  border:1px solid var(--border); background:#fff;
+  transition:transform .2s, border-color .2s;
+}
+.tier-card:hover { transform:translateY(-4px); }
+.tier-card.t1 { border-color:rgba(251,191,36,.2); }
+.tier-card.t2 { border-color:rgba(255,92,26,.3); background:rgba(255,92,26,.03); }
+.tier-card.t3 { border-color:rgba(239,68,68,.2); }
+
+.tier-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+}
+.tier-card.t1::before { background:linear-gradient(90deg,transparent,rgba(251,191,36,.6),transparent); }
+.tier-card.t2::before { background:linear-gradient(90deg,transparent,var(--orange),transparent); }
+.tier-card.t3::before { background:linear-gradient(90deg,transparent,rgba(239,68,68,.6),transparent); }
+
+.tier-emoji { font-size:36px; margin-bottom:14px; }
+.tier-name { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:1px; margin-bottom:6px; }
+.tier-card.t1 .tier-name { color:rgba(251,191,36,.9); }
+.tier-card.t2 .tier-name { color:var(--orange); }
+.tier-card.t3 .tier-name { color:#ef4444; }
+
+.tier-pts { font-size:12px; color:rgba(0,0,0,.4); margin-bottom:20px; font-weight:500; }
+.tier-perks { display:flex; flex-direction:column; gap:10px; }
+.tier-perk { display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(0,0,0,.65); }
+.tier-perk-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.t1 .tier-perk-dot { background:rgba(251,191,36,.8); }
+.t2 .tier-perk-dot { background:var(--orange); }
+.t3 .tier-perk-dot { background:#ef4444; }
+
+.tier-locked { opacity:.4; }
+.tier-big-bg {
+  position:absolute; bottom:-20px; right:10px;
+  font-family:'Bebas Neue',sans-serif; font-size:120px; line-height:1;
+  pointer-events:none; user-select:none; opacity:.04;
+}
+
+/* ── SIMPLE SIGNUP ── */
+.signup { padding:100px 60px; background:#f2efe9; border-top:1px solid var(--border); }
+.signup-inner { max-width:600px; margin:0 auto; text-align:center; }
+.signup-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,6vw,88px); letter-spacing:2px; color:#1a1a1a; line-height:.92; margin-bottom:20px; }
+.signup-title .accent { color:var(--orange); }
+.signup-body { font-size:17px; color:rgba(0,0,0,.5); line-height:1.6; font-weight:300; margin-bottom:40px; }
+
+.signup-form { display:flex; gap:10px; max-width:440px; margin:0 auto 16px; }
+.signup-input {
+  flex:1; padding:15px 18px;
+  background:#fff; border:1px solid rgba(0,0,0,.12);
+  border-radius:12px; color:#1a1a1a; font-size:14px;
+  font-family:'DM Sans',sans-serif; outline:none; transition:border-color .15s;
+}
+.signup-input:focus { border-color:var(--orange); }
+.signup-input::placeholder { color:rgba(0,0,0,.25); }
+.btn-signup {
+  background:var(--orange); color:#fff; border:none;
+  border-radius:12px; padding:15px 28px;
+  font-size:14px; font-weight:800; cursor:pointer;
+  font-family:'DM Sans',sans-serif; transition:all .15s; white-space:nowrap;
+}
+.btn-signup:hover { background:#e04a0c; transform:translateY(-1px); }
+.btn-signup.done { background:#22c55e; }
+
+.signup-sub { font-size:12px; color:rgba(0,0,0,.3); }
+.signup-sub span { color:rgba(0,0,0,.55); font-weight:500; }
+
+/* ── RESTAURANT STRIP (secondary, for operators) ── */
+.resto-strip {
+  padding:60px;
+  border-top:1px solid var(--border);
+  background:#faf8f5;
+}
+.resto-strip-inner {
+  max-width:1100px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:40px;
+}
+.resto-strip-left { }
+.resto-strip-eyebrow { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,0,0,.3); margin-bottom:8px; }
+.resto-strip-title { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:1px; color:#1a1a1a; margin-bottom:8px; }
+.resto-strip-body { font-size:14px; color:rgba(0,0,0,.5); max-width:480px; line-height:1.6; }
+.btn-resto { background:transparent; border:1px solid rgba(0,0,0,.15); color:rgba(0,0,0,.55); padding:12px 24px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; white-space:nowrap; }
+.btn-resto:hover { border-color:var(--orange); color:var(--orange); }
+
+/* ── FOOTER ── */
+footer {
+  background:#f2efe9; border-top:1px solid var(--border);
+  padding:40px 60px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.footer-logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:rgba(0,0,0,.3); }
+.footer-logo span { color:rgba(255,92,26,.5); }
+.footer-links-row { display:flex; gap:28px; }
+.footer-link { font-size:12px; color:rgba(0,0,0,.35); text-decoration:none; transition:color .15s; }
+.footer-link:hover { color:rgba(0,0,0,.7); }
+.footer-copy { font-size:12px; color:rgba(0,0,0,.3); }
+
+/* ── MODAL ── */
+.modal-ov { position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.8); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-ov.open { display:flex; animation:mfa .2s ease; }
+@keyframes mfa { from{opacity:0} to{opacity:1} }
+.modal { background:#fff; border:1px solid var(--border); border-radius:24px; padding:44px; width:100%; max-width:460px; position:relative; animation:mfu .25s ease; }
+@keyframes mfu { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.modal-x { position:absolute; top:18px; right:18px; width:30px; height:30px; background:rgba(0,0,0,.05); border:none; border-radius:50%; color:rgba(0,0,0,.4); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.modal-x:hover { background:rgba(0,0,0,.08); color:#1a1a1a; }
+.modal-eye { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:10px; }
+.modal-title { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:1px; color:#1a1a1a; margin-bottom:8px; }
+.modal-sub { font-size:13px; color:rgba(0,0,0,.5); line-height:1.5; margin-bottom:26px; }
+.fg { margin-bottom:12px; }
+.fl { font-size:10px; font-weight:600; color:rgba(0,0,0,.35); letter-spacing:.5px; text-transform:uppercase; margin-bottom:5px; display:block; }
+.fi { width:100%; padding:12px 14px; background:#faf8f5; border:1px solid rgba(0,0,0,.1); border-radius:10px; color:#1a1a1a; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color .15s; }
+.fi:focus { border-color:var(--orange); }
+.fi::placeholder { color:rgba(0,0,0,.22); }
+.btn-msub { width:100%; padding:15px; background:var(--orange); color:#fff; border:none; border-radius:12px; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; cursor:pointer; margin-top:6px; transition:all .15s; }
+.btn-msub:hover { background:#e04a0c; }
+.btn-msub.done { background:#22c55e; }
+
+/* ── REVEAL ── */
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.rd1 { transition-delay:.1s; } .rd2 { transition-delay:.2s; } .rd3 { transition-delay:.3s; }
+
+@media (max-width:900px) {
+  nav { padding:16px 20px; }
+  .hero { padding:100px 20px 80px; }
+  .how, .tiers, .signup, .drops-section, .resto-strip { padding:60px 20px; }
+  .how-steps, .drops-grid, .tiers-grid { grid-template-columns:1fr; }
+  .signup-form { flex-direction:column; }
+  .resto-strip-inner { flex-direction:column; text-align:center; }
+  footer { flex-direction:column; gap:20px; text-align:center; }
+  .footer-links-row { flex-wrap:wrap; justify-content:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="wordmark">
+    <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="9" fill="#ff5c1a"/>
+      <path d="M23 9C23 9 17 11 17 16C17 19.5 21 20.5 21 23.5C21 26.5 16 28.5 12 28" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M21 9C21 9 25.5 13 23.5 17" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="12" cy="31" r="2.2" fill="white"/>
+    </svg>
+    <span class="logo-text">Sizzle<span class="dot">.</span></span>
+  </a>
+  <div class="nav-right">
+    <a href="#" class="btn btn-ghost" onclick="openModal()">Are you a restaurant?</a>
+    <button class="btn btn-orange" onclick="scrollSignup()">Get the App</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-grain"></div>
+
+  <div class="hero-content">
+    <div class="hero-pill"><div class="pill-dot"></div>Now live · Charleston, SC 🔥</div>
+
+    <div class="hero-h1">
+      Something<br>
+      <span class="ghost">Just</span> For<br>
+      You<span class="o">.</span>
+    </div>
+
+    <div class="hero-tagline">DEMAND MORE</div>
+
+    <p class="hero-sub">
+      Exclusive, <strong>exclusive offers</strong> from great restaurants near you.<br>
+      Limited spots. Real food. <strong>Show up.</strong>
+    </p>
+
+    <div class="hero-cta-row">
+      <button class="btn-hero-main" onclick="scrollSignup()">🔥 Join the Waitlist — It's Free</button>
+      <div class="hero-sub-cta">Already have the app? <span>Open an offer →</span></div>
+    </div>
+  </div>
+
+  <div class="hero-scroll"><div class="scroll-line"></div>scroll</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="mq-item"><div class="mq-dot"></div>Deals You Want</div>
+    <div class="mq-item"><div class="mq-dot"></div>Dine In</div>
+    <div class="mq-item"><div class="mq-dot"></div>Real Food</div>
+    <div class="mq-item"><div class="mq-dot"></div>Get the Table</div>
+    <div class="mq-item"><div class="mq-dot"></div>Show Up</div>
+    <div class="mq-item"><div class="mq-dot"></div>Earn Your Status</div>
+    <div class="mq-item"><div class="mq-dot"></div>Only in Your City</div>
+    <div class="mq-item"><div class="mq-dot"></div>Claim It</div>
+    <div class="mq-item"><div class="mq-dot"></div>Deals You Want</div>
+    <div class="mq-item"><div class="mq-dot"></div>Dine In</div>
+    <div class="mq-item"><div class="mq-dot"></div>Real Food</div>
+    <div class="mq-item"><div class="mq-dot"></div>Get the Table</div>
+    <div class="mq-item"><div class="mq-dot"></div>Show Up</div>
+    <div class="mq-item"><div class="mq-dot"></div>Earn Your Status</div>
+    <div class="mq-item"><div class="mq-dot"></div>Only in Your City</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="how">
+    <div class="reveal">
+      <div class="sec-label">How It Works</div>
+      <div class="sec-title">Three steps.<br>One great night.</div>
+    </div>
+
+    <div class="how-steps">
+      <div class="step reveal rd1">
+        <div class="step-n">01</div>
+        <div class="step-ic">🔥</div>
+        <div class="step-title">See What's Dropping</div>
+        <div class="step-desc">Open Sizzle and browse live, exclusive offers from restaurants near you. Real dishes, real value — available right now.</div>
+      </div>
+      <div class="step reveal rd2">
+        <div class="step-n">02</div>
+        <div class="step-ic">⚡</div>
+        <div class="step-title">Claim Before It's Gone</div>
+        <div class="step-desc">Every offer has limited spots. When they're gone, they're gone. Claim yours in one tap — no checkout, no credit card needed.</div>
+      </div>
+      <div class="step reveal rd3">
+        <div class="step-n">03</div>
+        <div class="step-ic">▦</div>
+        <div class="step-title">Show Up &amp; Enjoy</div>
+        <div class="step-desc">Walk in, show your QR code at the host stand, and the offer applies automatically. Then enjoy one of Charleston's best restaurants at their best.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DROPS -->
+<section class="drops-section">
+  <div class="drops-inner">
+    <div class="drops-header reveal">
+      <div>
+        <div class="sec-label">Tonight's Offers</div>
+        <div class="sec-title">What's available<br>right now.</div>
+      </div>
+      <div class="drops-sub">Charleston, SC · Updated live</div>
+    </div>
+
+    <div class="drops-grid">
+
+      <!-- FIG -->
+      <div class="drop-card reveal rd1">
+        <div class="drop-card-img">
+          <div class="drop-card-img-inner bg-fig">
+            🥗
+            <div class="drop-img-gradient"></div>
+          </div>
+          <div class="drop-tag dt-pct">25% Off</div>
+          <div class="drop-spots"><div class="ds-dot"></div><div class="ds-n">6</div><div class="ds-l">left</div></div>
+        </div>
+        <div class="drop-body">
+          <div class="drop-rest">FIG Restaurant</div>
+          <div class="drop-deal">25% off the full menu tonight</div>
+          <div class="drop-dish">Roasted veg · duck confit · market herbs</div>
+          <div class="drop-bar-wrap">
+            <div class="drop-bar-top"><div class="drop-bar-lbl">4 of 10 claimed</div><div class="drop-bar-count">6 left</div></div>
+            <div class="drop-bar-bg"><div class="drop-bar-fill" style="width:40%"></div></div>
+          </div>
+          <div class="drop-footer">
+            <div class="drop-meta">📍 0.3 mi · Ends 10pm</div>
+            <button class="drop-claim-btn" onclick="claimDrop(this)">Claim</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 167 RAW -->
+      <div class="drop-card urgent reveal rd2">
+        <div class="drop-card-img">
+          <div class="drop-card-img-inner bg-raw">
+            🦪
+            <div class="drop-img-gradient"></div>
+          </div>
+          <div class="drop-tag dt-crit">⚡ Last 2</div>
+          <div class="drop-spots"><div class="ds-dot"></div><div class="ds-n crit">2</div><div class="ds-l">left</div></div>
+        </div>
+        <div class="drop-body">
+          <div class="drop-rest">167 Raw</div>
+          <div class="drop-deal">Free dozen Gulf oysters with $50+</div>
+          <div class="drop-dish">Gulf oysters · mignonette · fresh lemon</div>
+          <div class="drop-bar-wrap">
+            <div class="drop-bar-top"><div class="drop-bar-lbl">8 of 10 claimed</div><div class="drop-bar-count" style="color:#ef4444">2 left!</div></div>
+            <div class="drop-bar-bg"><div class="drop-bar-fill low" style="width:80%"></div></div>
+          </div>
+          <div class="drop-footer">
+            <div class="drop-meta">📍 0.6 mi · Ends 9pm</div>
+            <button class="drop-claim-btn" style="border-color:rgba(239,68,68,.3);color:#ef4444" onclick="claimDrop(this)">Claim</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CIRCA -->
+      <div class="drop-card reveal rd3">
+        <div class="drop-card-img">
+          <div class="drop-card-img-inner bg-circa">
+            🍽️
+            <div class="drop-img-gradient"></div>
+          </div>
+          <div class="drop-tag dt-free">Free Item</div>
+          <div class="drop-spots"><div class="ds-dot"></div><div class="ds-n">5</div><div class="ds-l">left</div></div>
+        </div>
+        <div class="drop-body">
+          <div class="drop-rest">Circa 1886</div>
+          <div class="drop-deal">$30 off Chef's Tasting Menu per couple</div>
+          <div class="drop-dish">Chef's seasonal tasting plate</div>
+          <div class="drop-bar-wrap">
+            <div class="drop-bar-top"><div class="drop-bar-lbl">5 of 10 claimed</div><div class="drop-bar-count">5 left</div></div>
+            <div class="drop-bar-bg"><div class="drop-bar-fill" style="width:50%"></div></div>
+          </div>
+          <div class="drop-footer">
+            <div class="drop-meta">📍 0.5 mi · Ends 11pm</div>
+            <button class="drop-claim-btn" onclick="claimDrop(this)">Claim</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="drops-cta-row reveal">
+      <div class="drops-cta-text">Join Sizzle to see all live offers near you</div>
+      <button class="btn btn-orange" style="padding:14px 36px;font-size:15px;border-radius:12px;" onclick="scrollSignup()">See All Drops →</button>
+    </div>
+  </div>
+</section>
+
+<!-- STATUS TIERS -->
+<section>
+  <div class="tiers">
+    <div class="reveal" style="text-align:center;margin-bottom:0;">
+      <div class="sec-label" style="text-align:center;">Member Status</div>
+      <div class="sec-title" style="text-align:center;max-width:600px;margin:0 auto;">Show up more.<br>Get more.</div>
+    </div>
+
+    <p style="text-align:center;font-size:16px;color:rgba(0,0,0,.45);font-weight:300;max-width:520px;margin:16px auto 0;line-height:1.6;">Points are earned when you actually dine — not just when you claim. The more you show up, the faster you rise. <span style="color:#ff5c1a;font-weight:500;">Inferno members get first pick on the best offers.</span></p>
+    <div class="tiers-grid" style="margin-top:52px;">
+      <div class="tier-card t1 reveal rd1">
+        <div class="tier-big-bg">S</div>
+        <div class="tier-emoji">✨</div>
+        <div class="tier-name">Spark</div>
+        <div class="tier-pts">Starting tier · Points earned when you dine</div>
+        <div class="tier-perks">
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Access to all available drops</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Points earned every time you dine</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Dining history &amp; savings tracker</div>
+          <div class="tier-perk tier-locked"><div class="tier-perk-dot"></div>Early access 🔒</div>
+        </div>
+      </div>
+      <div class="tier-card t2 reveal rd2">
+        <div class="tier-big-bg">M</div>
+        <div class="tier-emoji">🔥</div>
+        <div class="tier-name">Sizzler</div>
+        <div class="tier-pts">500–1,999 pts · Show up to level up</div>
+        <div class="tier-perks">
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Everything in Spark</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Early access — see drops 30 min first</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Restaurants can send you personal offers</div>
+          <div class="tier-perk tier-locked"><div class="tier-perk-dot"></div>Best drops 🔒</div>
+        </div>
+      </div>
+      <div class="tier-card t3 reveal rd3">
+        <div class="tier-big-bg">X</div>
+        <div class="tier-emoji">🌋</div>
+        <div class="tier-name">Inferno</div>
+        <div class="tier-pts">2,000+ pts · You always show up</div>
+        <div class="tier-perks">
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Everything in Sizzler</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>First pick on the best offers</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Inferno-only drops no one else sees</div>
+          <div class="tier-perk"><div class="tier-perk-dot"></div>Direct invites from top restaurants</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNUP -->
+<section class="signup" id="signup">
+  <div class="signup-inner">
+    <div class="reveal">
+      <div class="signup-title">Ready to<br><span class="accent">Demand</span><br>More<span class="accent">?</span></div>
+      <p class="signup-body">Join the waitlist and be the first to know when Sizzle offers in your city. Free to join. No spam. Just drops.</p>
+    </div>
+    <div class="signup-form reveal rd1">
+      <input class="signup-input" id="signup-email" placeholder="your@email.com" type="email">
+      <button class="btn-signup" id="signup-btn" onclick="submitWaitlist()">Join Free →</button>
+    </div>
+    <div class="signup-sub reveal rd2"><span>250+ diners</span> already on the list · <span>Charleston, SC</span> live now</div>
+  </div>
+</section>
+
+<!-- RESTAURANT STRIP -->
+<section class="resto-strip">
+  <div class="resto-strip-inner">
+    <div class="reveal">
+      <div class="resto-strip-eyebrow">For Restaurant Owners</div>
+      <div class="resto-strip-title">Own a restaurant? Let's talk.</div>
+      <p class="resto-strip-body">Put your tables in front of the right diners at exactly the right moment — with zero commissions and full AI support. Join our pilot program in Charleston.</p>
+    </div>
+    <a href="sizzle-restaurant.html" class="btn-resto reveal rd1" style="text-decoration:none;display:inline-block;">Learn About the Restaurant Program →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" style="text-decoration:none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 76" style="height:38px;width:auto;display:block">
+  <text x="140" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-1">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+  <line x1="20" y1="62" x2="260" y2="62" stroke="#FF5C1A" stroke-width="1.2"/>
+  <text x="140" y="74" font-family="system-ui,sans-serif" font-size="8" fill="#6B7A99" text-anchor="middle" letter-spacing="4">DEMAND MORE</text>
+</svg></a>
+  <div class="footer-links-row">
+    <a href="#" class="footer-link">How It Works</a>
+    <a href="#" class="footer-link">For Restaurants</a>
+    <a href="#" class="footer-link">Privacy</a>
+    <a href="#" class="footer-link">Terms</a>
+  </div>
+  <div class="footer-copy">© 2025 Sizzle · Charleston, SC · <span style="color:rgba(255,92,26,.4);font-family:'Bebas Neue',sans-serif;letter-spacing:2px;">DEMAND MORE</span></div>
+  <a href="sizzle-entry.html" style="font-size:12px;color:rgba(0,0,0,.35);text-decoration:none;">← Back to home</a>
+</footer>
+
+<!-- MODAL (restaurant) -->
+<div class="modal-ov" id="modal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-eye">For Restaurants</div>
+    <div class="modal-title">Get Early Access</div>
+    <p class="modal-sub">Join Sizzle's restaurant partner program. We're onboarding select restaurants in Charleston and expanding to new markets.</p>
+    <div class="fg"><label class="fl">Restaurant Name</label><input class="fi" placeholder="e.g. Husk Restaurant"></div>
+    <div class="fg"><label class="fl">Your Name</label><input class="fi" placeholder="Your name"></div>
+    <div class="fg"><label class="fl">Email Address</label><input class="fi" placeholder="you@restaurant.com" type="email"></div>
+    <button class="btn-msub" id="modal-btn" onclick="submitModal()">REQUEST EARLY ACCESS</button>
+  </div>
+</div>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Scroll to signup
+function scrollSignup() {
+  document.getElementById('signup').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Claim drop (demo)
+function claimDrop(btn) {
+  if (btn.classList.contains('claimed')) return;
+  btn.textContent = '✓ Claimed';
+  btn.classList.add('claimed');
+  // show toast-style feedback
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:14px 20px;font-size:14px;font-weight:600;color:#fff;z-index:999;animation:fu .3s ease;white-space:nowrap;';
+  toast.innerHTML = '🔥 Offer Claimed — Join Sizzle to redeem';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Waitlist
+function submitWaitlist() {
+  const btn = document.getElementById('signup-btn');
+  btn.textContent = "✓ You're on the list!";
+  btn.classList.add('done');
+}
+
+// Modal
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitModal() {
+  const btn = document.getElementById('modal-btn');
+  btn.textContent = "✓ WE'LL BE IN TOUCH";
+  btn.classList.add('done');
+  setTimeout(closeModal, 1500);
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

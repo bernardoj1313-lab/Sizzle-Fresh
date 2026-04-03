@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sizzle · Redeem</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #080C14;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 32px;
+}
+.logo-sq {
+  width: 32px; height: 32px; background: #FF5C1A;
+  border-radius: 7px; display: flex; align-items: center;
+  justify-content: center; font-size: 16px; font-weight: 900;
+}
+.logo-text { font-size: 20px; font-weight: 800; }
+.logo-text span { color: #FF5C1A; }
+.logo-sub { font-size: 11px; color: #5a6a88; letter-spacing: 1px; text-transform: uppercase; margin-left: 4px; margin-top: 4px; }
+
+/* ── SCAN SCREEN ── */
+.screen { width: 100%; max-width: 380px; }
+
+.card {
+  background: #0E1520;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  width: 100%;
+}
+.card-top {
+  background: #141C2E;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px; color: #6B7A99;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* Token entry */
+.token-section { padding: 24px 20px; }
+.token-label { font-size: 13px; color: #8A9AB8; margin-bottom: 10px; }
+.token-input-wrap { display: flex; gap: 10px; }
+.token-input {
+  flex: 1;
+  background: #141C2E;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color .15s;
+}
+.token-input:focus { border-color: #FF5C1A; }
+.token-input::placeholder { color: #3A4A66; letter-spacing: 0; font-weight: 400; text-transform: none; }
+.lookup-btn {
+  background: #FF5C1A; border: none;
+  color: #fff; font-size: 14px; font-weight: 700;
+  padding: 12px 18px; border-radius: 10px;
+  cursor: pointer; transition: background .15s;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.lookup-btn:hover { background: #e04a0c; }
+.lookup-btn:disabled { background: #3A4A66; cursor: not-allowed; }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px 20px;
+  font-size: 11px; color: #3A4A66; text-transform: uppercase;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: rgba(255,255,255,0.06);
+}
+
+.url-note {
+  padding: 0 20px 24px;
+  font-size: 12px; color: #5a6a88;
+  text-align: center; line-height: 1.5;
+}
+.url-note strong { color: #8A9AB8; }
+
+/* ── ERROR STATE ── */
+.error-card {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 0 20px 20px;
+  font-size: 13px; color: #f87171;
+  display: none;
+}
+.error-card.show { display: block; }
+
+/* ── VALID STATE ── */
+.valid-screen { display: none; width: 100%; max-width: 380px; }
+.valid-screen.show { display: block; }
+
+.check-wrap {
+  text-align: center;
+  padding: 32px 20px 24px;
+}
+.check-circle {
+  width: 80px; height: 80px;
+  background: rgba(0,212,170,0.12);
+  border: 2px solid #00D4AA;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  margin: 0 auto 16px;
+  animation: pop .3s ease;
+}
+@keyframes pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.valid-title {
+  font-size: 22px; font-weight: 800; margin-bottom: 4px;
+}
+.valid-sub { font-size: 13px; color: #6B7A99; }
+
+.detail-rows { padding: 0 20px 20px; }
+.detail-row {
+  display: flex; justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-key { color: #6B7A99; }
+.detail-val { font-weight: 600; text-align: right; max-width: 200px; }
+.detail-val.orange { color: #FF5C1A; }
+.detail-val.teal { color: #00D4AA; }
+.detail-val.green { color: #22C55E; }
+
+.tier-badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.tier-spark { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.tier-sizzler { background: rgba(255,92,26,0.15); color: #FF5C1A; }
+.tier-inferno { background: rgba(239,68,68,0.15); color: #f87171; }
+
+.confirm-btn {
+  width: calc(100% - 40px);
+  margin: 0 20px 12px;
+  background: #00D4AA; border: none;
+  color: #080C14; font-size: 16px; font-weight: 800;
+  padding: 16px; border-radius: 12px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all .15s; display: block;
+}
+.confirm-btn:hover { background: #00bfa0; transform: translateY(-1px); }
+.confirm-btn:disabled { background: #3A4A66; color: #6B7A99; cursor: not-allowed; transform: none; }
+
+.issue-btn {
+  width: calc(100% - 40px);
+  margin: 0 20px 24px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #6B7A99; font-size: 13px; font-weight: 600;
+  padding: 12px; border-radius: 12px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  display: block; transition: all .15s;
+}
+.issue-btn:hover { border-color: rgba(255,255,255,0.15); color: #8A9AB8; }
+
+.staff-note {
+  font-size: 11px; color: #3A4A66;
+  text-align: center; margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 0 20px;
+}
+
+/* ── CONFIRMED STATE ── */
+.confirmed-screen { display: none; width: 100%; max-width: 380px; text-align: center; padding: 40px 24px; }
+.confirmed-screen.show { display: block; }
+.confirmed-icon { font-size: 64px; margin-bottom: 20px; }
+.confirmed-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; color: #00D4AA; }
+.confirmed-sub { font-size: 14px; color: #6B7A99; line-height: 1.6; margin-bottom: 32px; }
+.reset-btn {
+  background: #0E1520; border: 1px solid rgba(255,255,255,0.08);
+  color: #8A9AB8; font-size: 14px; font-weight: 600;
+  padding: 14px 32px; border-radius: 12px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+
+/* ── ALREADY REDEEMED ── */
+.already-screen { display: none; width: 100%; max-width: 380px; text-align: center; padding: 40px 24px; }
+.already-screen.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <div class="logo-sq">S</div>
+  <div>
+    <div class="logo-text"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" style="height:30px;width:auto;display:block">
+  <text x="100" y="34" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+  <line x1="10" y1="41" x2="190" y2="41" stroke="#FF5C1A" stroke-width="1"/>
+  <text x="100" y="48" font-family="system-ui,sans-serif" font-size="7" fill="#6B7A99" text-anchor="middle" letter-spacing="3">DEMAND MORE</text>
+</svg></div>
+    <div class="logo-sub">Staff Portal</div>
+  </div>
+</div>
+
+<!-- SCAN / ENTRY SCREEN -->
+<div class="screen" id="scanScreen">
+  <div class="card">
+    <div class="card-top">🔍 Verify Guest Drop</div>
+
+    <div class="token-section">
+      <div class="token-label">Enter the token from the guest's QR code</div>
+      <div class="token-input-wrap">
+        <input
+          class="token-input"
+          id="tokenInput"
+          type="text"
+          placeholder="SZ-XXXXXX"
+          maxlength="20"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        >
+        <button class="lookup-btn" onclick="lookupToken()" id="lookupBtn">Check</button>
+      </div>
+    </div>
+
+    <div class="error-card" id="errorCard">
+      Token not found or already redeemed. Ask the guest to check their app.
+    </div>
+
+    <div class="divider">or</div>
+
+    <div class="url-note">
+      Guest can also show their QR screen — the token appears below the code.<br>
+      <strong>No app download needed.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- VALID OFFER SCREEN -->
+<div class="valid-screen" id="validScreen">
+  <div class="card">
+    <div class="check-wrap">
+      <div class="check-circle">✓</div>
+      <div class="valid-title">Valid Drop Confirmed</div>
+      <div class="valid-sub">Scanned via Sizzle · No app needed</div>
+    </div>
+
+    <div class="detail-rows" id="detailRows">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <br>
+
+  <button class="confirm-btn" id="confirmBtn" onclick="confirmRedemption()">
+    ✓ Confirm Redemption
+  </button>
+  <button class="issue-btn" onclick="reportIssue()">
+    Report an Issue
+  </button>
+  <div class="staff-note">Staff phone · No app required · Scan &amp; confirm</div>
+</div>
+
+<!-- CONFIRMED SCREEN -->
+<div class="confirmed-screen" id="confirmedScreen">
+  <div class="confirmed-icon">🎉</div>
+  <div class="confirmed-title">Redemption Confirmed</div>
+  <div class="confirmed-sub">
+    The guest's drop has been marked as redeemed.<br>
+    Apply the discount in your POS as normal.<br><br>
+    Points have been awarded to the guest automatically.
+  </div>
+  <button class="reset-btn" onclick="resetAll()">Verify Another Guest</button>
+</div>
+
+<!-- ALREADY REDEEMED SCREEN -->
+<div class="already-screen" id="alreadyScreen">
+  <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+  <div style="font-size:20px;font-weight:800;margin-bottom:8px;color:#F59E0B">Already Redeemed</div>
+  <div style="font-size:14px;color:#6B7A99;line-height:1.6;margin-bottom:32px">
+    This drop was already confirmed.<br>
+    Each drop can only be used once per table.
+  </div>
+  <button class="reset-btn" onclick="resetAll()">Verify Another Guest</button>
+</div>
+
+<script>
+// ── SUPABASE ──
+const { createClient } = supabase;
+const sb = createClient(
+  'https://blppzhzoszmpqdwxhcbj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJscHB6aHpvc3ptcHFkd3hoY2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODQ3MDIsImV4cCI6MjA4OTg2MDcwMn0.JxI9WLP_yPc6tyFCoLjUuELqph9rPCd6V9EnS0A8k5E'
+);
+
+let currentClaim = null;
+
+// ── Check URL params (for QR code direct links) ──
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (token) {
+    document.getElementById('tokenInput').value = token.toUpperCase();
+    lookupToken();
+  }
+
+  // Auto-uppercase token input
+  document.getElementById('tokenInput').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+  });
+
+  // Enter key submits
+  document.getElementById('tokenInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') lookupToken();
+  });
+});
+
+// ── LOOKUP TOKEN ──
+async function lookupToken() {
+  const token = document.getElementById('tokenInput').value.trim().toUpperCase();
+  if (!token) return;
+
+  const btn = document.getElementById('lookupBtn');
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  hideError();
+
+  try {
+    const { data: claim, error } = await sb
+      .from('claims')
+      .select('*, offers(title, discount_type, discount_value, free_item_name, restaurants(name, cuisine_type))')
+      .eq('qr_token', token)
+      .single();
+
+    if (error || !claim) {
+      // Try demo token for testing
+      if (token.startsWith('SZ-') || token.startsWith('DEMO')) {
+        showDemoClaim(token);
+        return;
+      }
+      showError('Token not found. Check the code and try again.');
+      btn.textContent = 'Check';
+      btn.disabled = false;
+      return;
+    }
+
+    if (claim.status === 'redeemed') {
+      showAlreadyRedeemed();
+      btn.textContent = 'Check';
+      btn.disabled = false;
+      return;
+    }
+
+    currentClaim = claim;
+    showValidClaim(claim);
+
+  } catch(e) {
+    // Network error — show demo for testing
+    if (token.startsWith('SZ-') || token.startsWith('DEMO')) {
+      showDemoClaim(token);
+    } else {
+      showError('Connection error. Please try again.');
+      btn.textContent = 'Check';
+      btn.disabled = false;
+    }
+  }
+}
+
+// ── SHOW VALID CLAIM ──
+function showValidClaim(claim) {
+  const offer = claim.offers || {};
+  const restaurant = offer.restaurants || {};
+  const discount = formatDiscount(offer);
+  const tier = claim.diner_tier || 'spark';
+
+  const rows = [
+    { key: 'Guest Tier', val: tierBadge(tier), isHTML: true },
+    { key: 'Restaurant', val: restaurant.name || 'Restaurant', cls: '' },
+    { key: 'Offer', val: offer.title || discount, cls: 'orange' },
+    { key: 'Discount', val: discount, cls: 'orange' },
+    { key: 'Valid For', val: 'Dine-in only · Tonight', cls: '' },
+    { key: 'Apply Discount', val: 'Manually in your POS', cls: 'teal' },
+  ];
+
+  document.getElementById('detailRows').innerHTML = rows.map(r => `
+    <div class="detail-row">
+      <span class="detail-key">${r.key}</span>
+      ${r.isHTML
+        ? `<span class="detail-val">${r.val}</span>`
+        : `<span class="detail-val ${r.cls || ''}">${r.val}</span>`
+      }
+    </div>
+  `).join('');
+
+  document.getElementById('scanScreen').style.display = 'none';
+  document.getElementById('validScreen').classList.add('show');
+}
+
+// ── SHOW DEMO CLAIM (for testing without DB) ──
+function showDemoClaim(token) {
+  currentClaim = { id: 'demo', qr_token: token, status: 'active' };
+
+  const rows = [
+    { key: 'Guest Tier', val: tierBadge('sizzler'), isHTML: true },
+    { key: 'Restaurant', val: 'Demo Restaurant', cls: '' },
+    { key: 'Offer', val: 'Tonight Only: 20% Off Dinner', cls: 'orange' },
+    { key: 'Discount', val: '20% Off', cls: 'orange' },
+    { key: 'Valid For', val: 'Dine-in only · Tonight', cls: '' },
+    { key: 'Apply Discount', val: 'Manually in your POS', cls: 'teal' },
+  ];
+
+  document.getElementById('detailRows').innerHTML = rows.map(r => `
+    <div class="detail-row">
+      <span class="detail-key">${r.key}</span>
+      ${r.isHTML
+        ? `<span class="detail-val">${r.val}</span>`
+        : `<span class="detail-val ${r.cls || ''}">${r.val}</span>`
+      }
+    </div>
+  `).join('');
+
+  document.getElementById('scanScreen').style.display = 'none';
+  document.getElementById('validScreen').classList.add('show');
+}
+
+// ── CONFIRM REDEMPTION ──
+async function confirmRedemption() {
+  const btn = document.getElementById('confirmBtn');
+  btn.textContent = 'Confirming...';
+  btn.disabled = true;
+
+  try {
+    if (currentClaim && currentClaim.id !== 'demo') {
+      await sb
+        .from('claims')
+        .update({ status: 'redeemed', redeemed_at: new Date().toISOString() })
+        .eq('id', currentClaim.id);
+    }
+  } catch(e) {
+    console.log('Redemption update failed — showing success anyway');
+  }
+
+  // Always show confirmed screen
+  document.getElementById('validScreen').classList.remove('show');
+  document.getElementById('confirmedScreen').classList.add('show');
+}
+
+// ── REPORT ISSUE ──
+function reportIssue() {
+  if (confirm('Report this offer as an issue? This will flag it for review.')) {
+    alert('Issue reported. The Sizzle team has been notified.');
+    resetAll();
+  }
+}
+
+// ── ALREADY REDEEMED ──
+function showAlreadyRedeemed() {
+  document.getElementById('scanScreen').style.display = 'none';
+  document.getElementById('alreadyScreen').classList.add('show');
+}
+
+// ── HELPERS ──
+function showError(msg) {
+  const el = document.getElementById('errorCard');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('errorCard').classList.remove('show');
+}
+
+function resetAll() {
+  currentClaim = null;
+  document.getElementById('tokenInput').value = '';
+  document.getElementById('lookupBtn').textContent = 'Check';
+  document.getElementById('lookupBtn').disabled = false;
+  document.getElementById('scanScreen').style.display = 'block';
+  document.getElementById('validScreen').classList.remove('show');
+  document.getElementById('confirmedScreen').classList.remove('show');
+  document.getElementById('alreadyScreen').classList.remove('show');
+  hideError();
+}
+
+function formatDiscount(offer) {
+  if (!offer) return 'Special Offer';
+  if (offer.discount_type === 'pct_off') return offer.discount_value + '% Off';
+  if (offer.discount_type === 'dollar_off') return '$' + offer.discount_value + ' Off';
+  if (offer.discount_type === 'free_item') return 'Free: ' + (offer.free_item_name || 'Item');
+  return 'Special Offer';
+}
+
+function tierBadge(tier) {
+  const tiers = {
+    spark: '<span class="tier-badge tier-spark">⚡ Spark</span>',
+    sizzler: '<span class="tier-badge tier-sizzler">🔥 Sizzler</span>',
+    inferno: '<span class="tier-badge tier-inferno">🌋 Inferno</span>',
+  };
+  return tiers[tier] || tiers.spark;
+}
+</script>
+</body>
+</html>

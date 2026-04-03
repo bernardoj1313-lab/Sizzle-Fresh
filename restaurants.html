@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sizzle for Restaurants — Demand More</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #ff5c1a;
+  --bg: #0a0a0a;
+  --s1: #111;
+  --s2: #181818;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0f0f0;
+  --muted: rgba(255,255,255,0.4);
+  --dim: rgba(255,255,255,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+
+/* NAV */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  padding:20px 60px;
+  display:flex; align-items:center; justify-content:space-between;
+  transition: background 0.3s;
+}
+nav.scrolled { background:rgba(10,10,10,0.96); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+.wordmark { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.logo-icon { width:34px; height:34px; }
+.logo-text { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:#fff; line-height:1; }
+.logo-text .dot { color:var(--orange); }
+.nav-back { font-size:13px; color:var(--muted); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color 0.15s; }
+.nav-back:hover { color:var(--text); }
+.btn-nav { background:var(--orange); color:#fff; padding:10px 20px; border-radius:10px; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; text-decoration:none; }
+.btn-nav:hover { background:#e04a0c; transform:translateY(-1px); }
+
+/* HERO */
+.hero {
+  min-height:100vh; display:flex; align-items:center;
+  padding:120px 60px 80px; position:relative; overflow:hidden;
+}
+.hero-glow {
+  position:absolute; width:700px; height:700px;
+  background:radial-gradient(circle, rgba(255,92,26,0.14) 0%, transparent 70%);
+  top:50%; left:20%; transform:translate(-50%,-50%);
+  pointer-events:none; animation:gp 5s ease-in-out infinite;
+}
+@keyframes gp { 0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)} }
+.hero-grid {
+  position:absolute; inset:0;
+  background-image: linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+  background-size:70px 70px;
+  mask-image:radial-gradient(ellipse at 30% 50%, transparent 20%, black 80%);
+  pointer-events:none;
+}
+.hero-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; width:100%; position:relative; z-index:2; }
+.hero-left { }
+.hero-eyebrow { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:16px; animation:fu .6s ease both; }
+.hero-h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(52px,5.5vw,80px); line-height:.9; letter-spacing:1px; color:#fff; margin-bottom:24px; animation:fu .6s ease .1s both; }
+.hero-h1 .accent { color:var(--orange); }
+.hero-sub { font-size:18px; font-weight:300; color:rgba(255,255,255,.5); line-height:1.65; margin-bottom:40px; animation:fu .6s ease .2s both; }
+.hero-sub strong { color:rgba(255,255,255,.8); font-weight:500; }
+.hero-ctas { display:flex; gap:12px; flex-wrap:wrap; animation:fu .6s ease .3s both; }
+.btn-primary { background:var(--orange); color:#fff; padding:15px 32px; border-radius:12px; font-size:15px; font-weight:700; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.btn-primary:hover { background:#e04a0c; transform:translateY(-2px); box-shadow:0 12px 32px rgba(255,92,26,.35); }
+.btn-secondary { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.7); padding:15px 28px; border-radius:12px; font-size:15px; font-weight:500; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.btn-secondary:hover { background:rgba(255,255,255,.1); color:#fff; }
+
+/* profit comparison card */
+.profit-card {
+  background:var(--s1); border:1px solid var(--border); border-radius:20px; padding:32px;
+  animation:fu .6s ease .2s both;
+  position:relative; overflow:hidden;
+}
+.profit-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--orange),transparent); }
+.profit-card-title { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:24px; }
+.profit-rows { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; }
+.profit-row { display:flex; align-items:center; gap:14px; }
+.profit-label { font-size:13px; color:var(--muted); width:130px; flex-shrink:0; }
+.profit-bar-wrap { flex:1; }
+.profit-bar-bg { height:10px; background:rgba(255,255,255,.07); border-radius:5px; overflow:hidden; }
+.profit-bar-fill { height:100%; border-radius:5px; transition:width .8s ease; }
+.pf-delivery { background:rgba(239,68,68,.6); width:33%; }
+.pf-sizzle { background:linear-gradient(90deg,var(--orange),#ff8c42); width:100%; }
+.profit-val { font-family:'Bebas Neue',sans-serif; font-size:22px; line-height:1; width:44px; text-align:right; flex-shrink:0; }
+.pv-red { color:#f87171; }
+.pv-orange { color:var(--orange); }
+.profit-note { font-size:12px; color:var(--dim); line-height:1.5; padding-top:14px; border-top:1px solid var(--border); }
+.profit-note strong { color:rgba(255,255,255,.6); }
+
+/* SECTION BASE */
+section { padding:90px 60px; }
+.sec-inner { max-width:1100px; margin:0 auto; }
+.sec-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:12px; }
+.sec-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,4vw,60px); letter-spacing:1px; color:#fff; line-height:1; margin-bottom:16px; }
+.sec-body { font-size:17px; color:rgba(255,255,255,.45); line-height:1.65; font-weight:300; max-width:500px; }
+
+/* HOW IT WORKS */
+.how-bg { background:var(--s1); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.how-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:52px; }
+.how-step { background:var(--s2); border:1px solid var(--border); border-radius:18px; padding:28px 22px; position:relative; overflow:hidden; transition:border-color .2s,transform .2s; }
+.how-step:hover { border-color:rgba(255,92,26,.25); transform:translateY(-3px); }
+.step-num { font-family:'Bebas Neue',sans-serif; font-size:64px; line-height:1; color:rgba(255,92,26,.08); position:absolute; top:10px; right:14px; pointer-events:none; }
+.step-icon { width:42px; height:42px; background:rgba(255,92,26,.1); border:1px solid rgba(255,92,26,.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px; }
+.step-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:6px; }
+.step-desc { font-size:13px; color:var(--muted); line-height:1.55; }
+
+/* FEATURES GRID */
+.features-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:52px; }
+.feature-card { background:var(--s1); border:1px solid var(--border); border-radius:18px; padding:28px 26px; transition:border-color .2s,transform .2s; }
+.feature-card:hover { border-color:rgba(255,92,26,.2); transform:translateY(-2px); }
+.fc-icon { font-size:28px; margin-bottom:14px; }
+.fc-title { font-size:16px; font-weight:700; color:#fff; margin-bottom:8px; }
+.fc-body { font-size:14px; color:var(--muted); line-height:1.6; }
+.fc-tag { display:inline-block; margin-top:12px; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--orange); background:rgba(255,92,26,.1); border:1px solid rgba(255,92,26,.2); border-radius:6px; padding:3px 8px; }
+
+/* PROOF */
+.proof-bg { background:var(--s1); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.proof-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.proof-quote-mark { font-family:'Fraunces',serif; font-size:120px; line-height:.8; color:rgba(255,92,26,.1); position:absolute; top:-10px; left:-10px; pointer-events:none; }
+.proof-quote-wrap { position:relative; padding:20px; }
+.proof-quote { font-family:'Fraunces',serif; font-size:26px; font-style:italic; color:#fff; line-height:1.45; margin-bottom:20px; position:relative; z-index:1; }
+.proof-quote strong { color:var(--orange); font-style:normal; }
+.proof-attr { font-size:14px; color:var(--muted); }
+.proof-attr strong { color:rgba(255,255,255,.65); }
+.metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.metric { background:var(--s2); border:1px solid var(--border); border-radius:16px; padding:22px; transition:border-color .2s; }
+.metric:hover { border-color:rgba(255,92,26,.2); }
+.metric-val { font-family:'Bebas Neue',sans-serif; font-size:46px; color:var(--orange); line-height:1; margin-bottom:6px; }
+.metric-lbl { font-size:12px; color:var(--muted); line-height:1.4; }
+
+/* PRICING */
+.pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:52px; }
+.price-card { background:var(--s1); border:1px solid var(--border); border-radius:20px; padding:32px 28px; position:relative; overflow:hidden; transition:border-color .2s,transform .2s; }
+.price-card:hover { border-color:rgba(255,92,26,.25); transform:translateY(-3px); }
+.price-card.featured { border-color:rgba(255,92,26,.4); background:rgba(255,92,26,.05); }
+.price-card.featured::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--orange),transparent); }
+.price-badge { display:inline-block; background:var(--orange); color:#fff; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:4px 10px; border-radius:20px; margin-bottom:16px; }
+.price-tier { font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:10px; }
+.price-val { font-family:'Bebas Neue',sans-serif; font-size:52px; color:#fff; line-height:1; margin-bottom:4px; }
+.price-period { font-size:13px; color:var(--muted); margin-bottom:20px; }
+.price-features { display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+.pf { display:flex; align-items:center; gap:8px; font-size:13px; color:rgba(255,255,255,.7); }
+.pf-dot { width:6px; height:6px; border-radius:50%; background:var(--orange); flex-shrink:0; }
+.btn-price { width:100%; padding:13px; background:rgba(255,92,26,.1); border:1px solid rgba(255,92,26,.2); color:var(--orange); border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .15s; }
+.btn-price:hover { background:var(--orange); color:#fff; }
+.price-card.featured .btn-price { background:var(--orange); color:#fff; border-color:var(--orange); }
+.price-card.featured .btn-price:hover { background:#e04a0c; }
+
+/* CTA SECTION */
+.cta-section { text-align:center; padding:100px 60px; }
+.cta-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,6vw,88px); letter-spacing:2px; color:#fff; line-height:.9; margin-bottom:20px; }
+.cta-title .accent { color:var(--orange); }
+.cta-body { font-size:17px; color:var(--muted); line-height:1.6; font-weight:300; max-width:500px; margin:0 auto 40px; }
+
+/* MODAL */
+.modal-ov { position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.85); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-ov.open { display:flex; animation:mfa .2s ease; }
+@keyframes mfa { from{opacity:0} to{opacity:1} }
+.modal { background:var(--s1); border:1px solid var(--border); border-radius:24px; padding:44px; width:100%; max-width:460px; position:relative; animation:mfu .25s ease; }
+@keyframes mfu { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.modal-x { position:absolute; top:16px; right:16px; width:30px; height:30px; background:rgba(255,255,255,.06); border:none; border-radius:50%; color:var(--muted); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.modal-x:hover { background:rgba(255,255,255,.1); color:#fff; }
+.modal-eye { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:10px; }
+.modal-title { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:1px; color:#fff; margin-bottom:8px; }
+.modal-sub { font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:24px; }
+.fg { margin-bottom:12px; }
+.fl { font-size:10px; font-weight:600; color:var(--dim); letter-spacing:.5px; text-transform:uppercase; margin-bottom:5px; display:block; }
+.fi { width:100%; padding:12px 14px; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:10px; color:#fff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; transition:border-color .15s; }
+.fi:focus { border-color:var(--orange); }
+.fi::placeholder { color:rgba(255,255,255,.2); }
+.fs { width:100%; padding:12px 14px; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:10px; color:#fff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; }
+.fs option { background:#1a1a1a; }
+.btn-msub { width:100%; padding:15px; background:var(--orange); color:#fff; border:none; border-radius:12px; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; cursor:pointer; margin-top:6px; transition:all .15s; }
+.btn-msub:hover { background:#e04a0c; }
+.btn-msub.done { background:#22c55e; }
+
+/* REVEAL */
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.rd1{transition-delay:.1s} .rd2{transition-delay:.2s} .rd3{transition-delay:.3s}
+
+/* FOOTER */
+footer { background:var(--s1); border-top:1px solid var(--border); padding:30px 60px; display:flex; align-items:center; justify-content:space-between; }
+.footer-logo { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; color:rgba(255,255,255,.25); }
+.footer-logo span { color:rgba(255,92,26,.4); }
+.footer-copy { font-size:12px; color:var(--dim); }
+.footer-link { font-size:12px; color:var(--dim); text-decoration:none; }
+.footer-link:hover { color:var(--muted); }
+
+@keyframes fu { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+@media(max-width:900px) {
+  nav{padding:16px 20px}
+  section{padding:60px 20px}
+  .hero{padding:100px 20px 60px}
+  .hero-inner,.proof-grid{grid-template-columns:1fr;gap:40px}
+  .how-steps,.features-grid,.pricing-grid{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:14px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="sizzle-entry.html" class="nav-back">← Back</a>
+  <a href="sizzle-entry.html" class="wordmark">
+    <svg class="logo-icon" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="9" fill="#ff5c1a"/>
+      <path d="M23 9C23 9 17 11 17 16C17 19.5 21 20.5 21 23.5C21 26.5 16 28.5 12 28" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M21 9C21 9 25.5 13 23.5 17" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="12" cy="31" r="2.2" fill="white"/>
+    </svg>
+    <span class="logo-text">Sizzle<span class="dot">.</span></span>
+  </a>
+  <button class="btn-nav" onclick="openModal()">Request Early Access</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">For Restaurant Operators</div>
+      <div class="hero-h1">Your Tables.<br>Your Terms.<br>Your <span class="accent">Revenue.</span></div>
+      <p class="hero-sub">Sizzle gives you <strong>AI-driven tools</strong> to create demand on your schedule — filling seats during slow periods with zero commissions and full control over every offer.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="openModal()">Request Early Access →</button>
+        <button class="btn-secondary" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+      </div>
+    </div>
+    <div>
+      <div class="profit-card">
+        <div class="profit-card-title">Net Profit Per Cover — Delivery vs. Sizzle</div>
+        <div class="profit-rows">
+          <div class="profit-row">
+            <div class="profit-label" style="font-size:12px;">Delivery ($30 check)</div>
+            <div class="profit-bar-wrap"><div class="profit-bar-bg"><div class="profit-bar-fill pf-delivery"></div></div></div>
+            <div class="profit-val pv-red">$6</div>
+          </div>
+          <div class="profit-row">
+            <div class="profit-label" style="font-size:12px;">Sizzle dine-in ($45 check)</div>
+            <div class="profit-bar-wrap"><div class="profit-bar-bg"><div class="profit-bar-fill pf-sizzle"></div></div></div>
+            <div class="profit-val pv-orange">$18</div>
+          </div>
+        </div>
+        <div class="profit-note">
+          <strong>Dine-in is 3x more profitable than delivery.</strong> Higher average checks (drinks + apps), zero commissions, and the customers you keep forever.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-bg" id="how">
+  <div class="sec-inner">
+    <div class="reveal">
+      <div class="sec-label">How It Works</div>
+      <div class="sec-title">From slow night to full house<br>in minutes.</div>
+    </div>
+    <div class="how-steps">
+      <div class="how-step reveal rd1">
+        <div class="step-num">01</div>
+        <div class="step-icon">🧠</div>
+        <div class="step-title">AI Spots the Gap</div>
+        <div class="step-desc">Sizzle monitors your reservations, POS data, weather, and local events to predict slow windows 24–48 hours ahead.</div>
+      </div>
+      <div class="how-step reveal rd2">
+        <div class="step-num">02</div>
+        <div class="step-icon">⚙️</div>
+        <div class="step-title">You Set the Terms</div>
+        <div class="step-desc">Choose your offer, discount, max claims, time window and audience. You approve everything — the AI handles execution.</div>
+      </div>
+      <div class="how-step reveal rd3">
+        <div class="step-num">03</div>
+        <div class="step-icon">🎯</div>
+        <div class="step-title">Right Diners, Right Moment</div>
+        <div class="step-desc">Sizzle pushes your offer to the highest-value matching diners in your area — not a mass blast. Targeted, relevant, personal.</div>
+      </div>
+      <div class="how-step reveal rd3">
+        <div class="step-num">04</div>
+        <div class="step-icon">📈</div>
+        <div class="step-title">Tables Fill. You Keep It All.</div>
+        <div class="step-desc">Zero commission. POS integration validates every redemption and traces exact revenue back to each offer. Real attribution.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section>
+  <div class="sec-inner">
+    <div class="reveal">
+      <div class="sec-label">Platform Features</div>
+      <div class="sec-title">Everything you need.<br>Nothing you don't.</div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal rd1">
+        <div class="fc-icon">🧠</div>
+        <div class="fc-title">AI Demand Engine</div>
+        <div class="fc-body">Predicts slow periods before they happen and suggests the exact offer type, discount level and audience segment most likely to fill your seats.</div>
+        <div class="fc-tag">Operator-Approved · AI-Executed</div>
+      </div>
+      <div class="feature-card reveal rd2">
+        <div class="fc-icon">👥</div>
+        <div class="fc-title">Proprietary Diner Audience</div>
+        <div class="fc-body">Access a growing, opt-in network of local high-value diners segmented by cuisine preference, spend level, and redemption behavior.</div>
+        <div class="fc-tag">High-Value Whales · Power Redeemers</div>
+      </div>
+      <div class="feature-card reveal rd1">
+        <div class="fc-icon">🔗</div>
+        <div class="fc-title">POS & Reservation Integration</div>
+        <div class="fc-body">Deep integration with Toast, Square, OpenTable, Resy and Tock. Every redemption validated and attributed back to exact revenue — automatically.</div>
+        <div class="fc-tag">Real Attribution · Zero Manual Work</div>
+      </div>
+      <div class="feature-card reveal rd2">
+        <div class="fc-icon">📊</div>
+        <div class="fc-title">Full Analytics Dashboard</div>
+        <div class="fc-body">Track covers driven, revenue per offer, redemption rates, and net profit lift vs. delivery — all in one clean operator-friendly dashboard.</div>
+        <div class="fc-tag">Revenue · Covers · ROI</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="proof-bg">
+  <div class="sec-inner">
+    <div style="text-align:center;margin-bottom:60px;" class="reveal">
+      <div class="sec-label" style="text-align:center;">Early Results</div>
+      <div class="sec-title" style="text-align:center;">Charleston restaurants<br>are already winning.</div>
+    </div>
+    <div class="proof-grid">
+      <div class="proof-quote-wrap reveal">
+        <div class="proof-quote-mark">"</div>
+        <div class="proof-quote">Sizzle immediately drove <strong>20 extra covers</strong> on our slowest Tuesday. It's the targeted tool we've been needing.</div>
+        <div class="proof-attr">— <strong>Beta Partner Restaurant</strong>, Downtown Charleston · Week 1</div>
+      </div>
+      <div class="metrics-grid reveal rd1">
+        <div class="metric"><div class="metric-val">20</div><div class="metric-lbl">Extra covers on a slow Tuesday — week one</div></div>
+        <div class="metric"><div class="metric-val">250+</div><div class="metric-lbl">Opt-in diners captured in 60 days</div></div>
+        <div class="metric"><div class="metric-val">3x</div><div class="metric-lbl">More profitable than equivalent delivery orders</div></div>
+        <div class="metric"><div class="metric-val">0%</div><div class="metric-lbl">Commission charged to restaurant partners. Ever.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section>
+  <div class="sec-inner">
+    <div style="text-align:center;" class="reveal">
+      <div class="sec-label" style="text-align:center;">Simple Pricing</div>
+      <div class="sec-title" style="text-align:center;">Flat monthly. No commissions.<br>No surprises.</div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal rd1">
+        <div class="price-tier">Base</div>
+        <div class="price-val">$99</div>
+        <div class="price-period">per month</div>
+        <div class="price-features">
+          <div class="pf"><div class="pf-dot"></div>Limited-time offer creation</div>
+          <div class="pf"><div class="pf-dot"></div>Access to Sizzle diner audience</div>
+          <div class="pf"><div class="pf-dot"></div>Basic redemption tracking</div>
+          <div class="pf"><div class="pf-dot"></div>Restaurant portal dashboard</div>
+        </div>
+        <button class="btn-price" onclick="openModal()">Get Started</button>
+      </div>
+      <div class="price-card featured reveal rd2">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-tier">Pro</div>
+        <div class="price-val">$199</div>
+        <div class="price-period">per month</div>
+        <div class="price-features">
+          <div class="pf"><div class="pf-dot"></div>Full AI segmentation engine</div>
+          <div class="pf"><div class="pf-dot"></div>Advanced analytics & ROI tracking</div>
+          <div class="pf"><div class="pf-dot"></div>Unlimited offers</div>
+          <div class="pf"><div class="pf-dot"></div>Premium audience segments</div>
+          <div class="pf"><div class="pf-dot"></div>Lapsed high-spender targeting</div>
+        </div>
+        <button class="btn-price" onclick="openModal()">Get Started</button>
+      </div>
+      <div class="price-card reveal rd3">
+        <div class="price-tier">Premium</div>
+        <div class="price-val">$299+</div>
+        <div class="price-period">per month</div>
+        <div class="price-features">
+          <div class="pf"><div class="pf-dot"></div>Everything in Pro</div>
+          <div class="pf"><div class="pf-dot"></div>POS integration (Toast · Square)</div>
+          <div class="pf"><div class="pf-dot"></div>Reservation system integration</div>
+          <div class="pf"><div class="pf-dot"></div>Automated offer validation</div>
+          <div class="pf"><div class="pf-dot"></div>Full revenue attribution</div>
+        </div>
+        <button class="btn-price" onclick="openModal()">Get Started</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-title">Ready to <span class="accent">Demand</span><br>More from your tables<span class="accent">?</span></div>
+  <p class="cta-body">Join the Charleston pilot program. Limited spots available for the first cohort of restaurant partners.</p>
+  <button class="btn-primary" style="padding:18px 48px;font-size:17px;border-radius:14px;" onclick="openModal()">Request Early Access →</button>
+</section>
+
+<footer>
+  <a href="/" style="text-decoration:none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 76" style="height:38px;width:auto;display:block">
+  <text x="140" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-1">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+  <line x1="20" y1="62" x2="260" y2="62" stroke="#FF5C1A" stroke-width="1.2"/>
+  <text x="140" y="74" font-family="system-ui,sans-serif" font-size="8" fill="#6B7A99" text-anchor="middle" letter-spacing="4">DEMAND MORE</text>
+</svg></a>
+  <div class="footer-copy">© 2025 Sizzle · Charleston, SC</div>
+  <a href="sizzle-entry.html" class="footer-link">← Back to home</a>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-eye">Restaurant Partner Program</div>
+    <div class="modal-title">Request Early Access</div>
+    <p class="modal-sub">We're onboarding select restaurants in Charleston now. Tell us about your spot and we'll be in touch within 48 hours.</p>
+    <div class="fg"><label class="fl">Restaurant Name</label><input class="fi" placeholder="e.g. Husk Restaurant"></div>
+    <div class="fg"><label class="fl">Your Name</label><input class="fi" placeholder="Your full name"></div>
+    <div class="fg"><label class="fl">Email Address</label><input class="fi" type="email" placeholder="you@yourrestaurant.com"></div>
+    <div class="fg"><label class="fl">Number of Locations</label>
+      <select class="fs"><option>1 location</option><option>2-3 locations</option><option>4-5 locations</option><option>5+ locations</option></select>
+    </div>
+    <button class="btn-msub" id="modal-btn" onclick="submitModal()">REQUEST EARLY ACCESS</button>
+  </div>
+</div>
+
+<script>
+window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40));
+function openModal() { document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow=''; }
+function submitModal() { const b=document.getElementById('modal-btn'); b.textContent="✓ WE'LL BE IN TOUCH"; b.classList.add('done'); setTimeout(closeModal,1500); }
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

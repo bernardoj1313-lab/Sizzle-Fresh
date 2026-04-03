@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sizzle</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0a0a0a;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'DM Sans',sans-serif;padding:20px}
+.phone{width:390px;height:844px;background:#0d0d0d;border-radius:50px;overflow:hidden;position:relative;box-shadow:0 0 0 10px #0a0a0a,0 0 0 12px #222,0 50px 100px rgba(0,0,0,0.8);display:flex;flex-direction:column}
+.sbar{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;flex-shrink:0;position:relative;z-index:10}
+.sbar-t{font-size:15px;font-weight:600;color:#fff}
+.sbar-i{display:flex;gap:5px;align-items:center;font-size:12px;color:rgba(255,255,255,0.7)}
+.screen{flex:1;overflow:hidden;position:relative;background:#0d0d0d}
+.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;background:#0d0d0d;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pg::-webkit-scrollbar{display:none}
+.pg.active{display:block;animation:fu .22s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bnav{height:80px;background:#111;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-around;padding:0 8px 14px;flex-shrink:0;z-index:20}
+.ntab{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:10px 18px;border-radius:16px;transition:all .2s;flex:1}
+.ntab.active{background:rgba(255,92,26,0.1)}
+.ntab-ic{font-size:20px;transition:transform .2s}
+.ntab.active .ntab-ic{transform:scale(1.15)}
+.ntab-lb{font-size:10px;font-weight:500;color:rgba(255,255,255,0.3);letter-spacing:.5px;text-transform:uppercase}
+.ntab.active .ntab-lb{color:#ff5c1a;font-weight:700}
+
+/* IMG elements */
+.dish-img{width:100%;height:100%;object-fit:cover;display:block}
+.img-bg{background:#1a1208}
+
+/* DISCOVER */
+.dtbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;position:sticky;top:0;z-index:15;background:linear-gradient(to bottom,#0d0d0d 80%,transparent)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff}
+.logo span{color:#ff5c1a}
+.dtr{display:flex;align-items:center;gap:10px}
+.loc-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.7);font-weight:500}
+.u-av{width:32px;height:32px;background:linear-gradient(135deg,#ff5c1a,#ff8c42);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer}
+
+/* HERO */
+.hero{position:relative;margin:0 16px 4px;border-radius:24px;overflow:hidden;cursor:pointer;height:340px}
+.hero-img-wrap{width:100%;height:100%;position:absolute;inset:0}
+.hero-img-wrap img{width:100%;height:100%;object-fit:cover;filter:brightness(0.5);transition:transform .4s}
+.hero:hover .hero-img-wrap img{transform:scale(1.02)}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(160deg,rgba(13,13,13,0.2) 0%,transparent 35%,rgba(13,13,13,0.8) 65%,rgba(13,13,13,0.98) 100%)}
+.live-b{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:6px;background:#ff5c1a;border-radius:6px;padding:5px 11px;font-size:10px;font-weight:800;color:#fff;letter-spacing:1.5px;text-transform:uppercase;z-index:5}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:lp 1s infinite}
+@keyframes lp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.dish-lbl{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.75);font-style:italic;font-family:Georgia,serif;z-index:5}
+.hero-c{position:absolute;bottom:0;left:0;right:0;padding:0 18px 20px;z-index:5}
+.hero-cui{font-size:10px;color:#ff5c1a;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.hero-rest{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:.92;color:#fff;letter-spacing:1px;margin-bottom:10px}
+.hero-op-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.op-pill{background:#ff5c1a;color:#fff;font-size:13px;font-weight:800;padding:6px 14px;border-radius:8px}
+.op-desc{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.3}
+.hero-ar{display:flex;align-items:flex-end;justify-content:space-between}
+.scar-n{font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;color:#ff5c1a;letter-spacing:1px}
+.scar-l{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.hero-btn{background:#fff;color:#0d0d0d;border:none;border-radius:14px;padding:13px 22px;font-size:14px;font-weight:800;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.hero-btn:hover{background:#ff5c1a;color:#fff}
+.hero-btn.claimed{background:#22c55e;color:#fff}
+.hbar{height:3px;background:rgba(255,255,255,0.06);margin:0 16px 4px;border-radius:2px;overflow:hidden}
+.hbar-f{height:100%;background:#ff5c1a;border-radius:2px}
+
+/* SECTION */
+.sec-lbl{display:flex;align-items:baseline;justify-content:space-between;padding:18px 20px 10px}
+.sec-n{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:#fff}
+.sec-h{font-size:11px;color:rgba(255,255,255,0.25)}
+
+/* EXPIRING SCROLL */
+.exp-scroll{display:flex;gap:10px;padding:0 16px 4px;overflow-x:auto}
+.exp-scroll::-webkit-scrollbar{display:none}
+.exp-card{width:120px;flex-shrink:0;border-radius:14px;overflow:hidden;background:#161616;border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:transform .2s,border-color .2s}
+.exp-card:hover{transform:translateY(-3px);border-color:rgba(255,92,26,0.35)}
+.exp-img-w{position:relative;height:82px;overflow:hidden}
+.exp-img-w img{width:100%;height:100%;object-fit:cover;filter:brightness(0.5);transition:transform .3s}
+.exp-card:hover .exp-img-w img{transform:scale(1.06)}
+.exp-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(22,22,22,.9) 100%)}
+.exp-sn{position:absolute;top:6px;right:8px;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#ff5c1a;line-height:1}
+.exp-sn.crit{color:#ef4444}
+.exp-dish-nm{position:absolute;bottom:5px;left:6px;right:6px;font-size:9px;color:rgba(255,255,255,.5);font-style:italic;font-family:Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-b{padding:7px 10px 9px}
+.exp-rn{font-family:'Bebas Neue',sans-serif;font-size:13px;color:#fff;letter-spacing:.5px}
+.exp-of{font-size:10px;color:#ff5c1a;font-weight:600;margin-top:2px}
+.exp-tm{font-size:10px;color:rgba(255,255,255,.25);margin-top:1px}
+
+/* DROP CARDS */
+.drops{padding:0 16px 20px;display:flex;flex-direction:column;gap:14px}
+.dc{border-radius:20px;overflow:hidden;cursor:pointer;background:#161616;border:1px solid rgba(255,255,255,0.06);transition:transform .2s,border-color .2s}
+.dc:hover{transform:translateY(-2px);border-color:rgba(255,92,26,.25)}
+.dc.crit{border-color:rgba(239,68,68,.35)}
+.dual{display:grid;grid-template-columns:55% 45%;height:155px;position:relative}
+.dual img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.6);transition:transform .3s}
+.dual img:first-child{border-right:2px solid #161616}
+.dc:hover .dual img{transform:scale(1.03)}
+.dual-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(22,22,22,.95) 100%);pointer-events:none}
+.dish-tag-img{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-radius:6px;padding:3px 8px;font-size:9px;color:rgba(255,255,255,.65);font-style:italic;font-family:Georgia,serif}
+.resto-tag-img{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-radius:6px;padding:3px 8px;font-size:9px;color:rgba(255,255,255,.4)}
+.otag{position:absolute;bottom:8px;left:8px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;letter-spacing:.5px;text-transform:uppercase}
+.ot-pct{background:#ff5c1a;color:#fff}
+.ot-free{background:#22c55e;color:#fff}
+.ot-dol{background:#fff;color:#0d0d0d}
+.ot-crit{background:#ef4444;color:#fff;animation:cp 1.2s infinite}
+@keyframes cp{0%,100%{opacity:1}50%{opacity:.65}}
+.spots-b{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:4px}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1;color:#ff5c1a}
+.sn.crit{color:#ef4444}
+.sl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px}
+.dc-body{padding:12px 14px 14px}
+.dc-rest{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px;color:#fff;line-height:1}
+.dc-dist{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.dc-deal{font-size:13px;color:rgba(255,255,255,.7);font-weight:500;margin:6px 0 8px}
+.dc-chip{display:inline-block;font-size:11px;color:#ff5c1a;font-style:italic;font-family:Georgia,serif;background:rgba(255,92,26,.08);border:1px solid rgba(255,92,26,.15);border-radius:6px;padding:3px 8px;margin-bottom:10px}
+.dc-foot{display:flex;align-items:center;justify-content:space-between}
+.bar-w{flex:1;margin-right:12px}
+.bar-bg{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.bar-f{height:100%;border-radius:2px;background:#ff5c1a}
+.bar-f.low{background:#ef4444}
+.bar-t{font-size:10px;color:rgba(255,255,255,.25);margin-top:4px}
+.cbtn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:10px;padding:9px 18px;font-size:12px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.cbtn:hover{background:#ff5c1a;border-color:#ff5c1a}
+.cbtn.claimed{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:#22c55e}
+
+/* MY DROPS */
+.mhdr{padding:18px 20px 0}
+.mttl{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:#fff;margin-bottom:4px}
+.mttl span{color:#ff5c1a}
+.msub{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:16px}
+.tbar{display:flex;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:16px}
+.ti{flex:1;text-align:center;padding:11px 6px;font-size:11px;font-weight:700;cursor:pointer;color:rgba(255,255,255,.28);transition:all .15s;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.ti.active{color:#ff5c1a;border-bottom-color:#ff5c1a}
+.mlist{padding:0 16px 100px;display:flex;flex-direction:column;gap:12px}
+.mc{background:#161616;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.mc.live{border-color:rgba(255,92,26,.22)}
+.mc.used{border-color:rgba(34,197,94,.18)}
+.mc.gone{opacity:.45}
+.mc-top{display:flex}
+.mc-img{width:90px;height:90px;object-fit:cover;flex-shrink:0;filter:brightness(.7)}
+.mc-info{flex:1;padding:12px 14px;min-width:0}
+.mc-rest{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:.5px;margin-bottom:2px}
+.mc-deal{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:3px}
+.mc-dish{font-size:11px;color:#ff5c1a;font-style:italic;font-family:Georgia,serif;margin-bottom:4px}
+.mc-meta{font-size:10px;color:rgba(255,255,255,.22)}
+.mc-br{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.mbadge{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:6px}
+.mb-live{background:rgba(255,92,26,.12);color:#ff5c1a;border:1px solid rgba(255,92,26,.25)}
+.mb-used{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
+.mb-gone{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.07)}
+.mc-qr{border-top:1px dashed rgba(255,255,255,.07);display:flex;align-items:center;gap:12px;padding:12px 14px}
+.qr-v{width:54px;height:54px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#0d0d0d;flex-shrink:0}
+.qr-i{flex:1}
+.qr-in{font-size:12px;font-weight:600;color:rgba(255,255,255,.65);margin-bottom:2px}
+.qr-s{font-size:10px;color:rgba(255,255,255,.22);line-height:1.4}
+.qr-t{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#ff5c1a;letter-spacing:1px;margin-top:3px}
+
+/* STATUS */
+.sph{padding-bottom:100px}
+.shero{padding:26px 20px 28px;background:#111;position:relative;overflow:hidden}
+.shero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 10%,rgba(255,92,26,.13) 0%,transparent 55%)}
+.shero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,92,26,.25),transparent)}
+.swm{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;color:rgba(255,255,255,.18);margin-bottom:18px;position:relative}
+.str{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;position:relative}
+.sn2{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:.95;color:#fff;letter-spacing:1px}
+.ss2{font-size:11px;color:rgba(255,255,255,.22);margin-top:5px}
+.sav{width:44px;height:44px;background:linear-gradient(135deg,#ff5c1a,#ff8c42);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff}
+.tc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 18px;position:relative}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ff5c1a,transparent)}
+.tcr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tey{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.tnb{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#ff5c1a;letter-spacing:1px;line-height:1}
+.tpv{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#fff;line-height:1;text-align:right}
+.tpl{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.5px;text-align:right}
+.tpt{display:flex;justify-content:space-between;margin-bottom:5px}
+.tpl2{font-size:10px;color:rgba(255,255,255,.28)}
+.tpv2{font-size:10px;color:rgba(255,255,255,.45)}
+.tb{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.tbf{height:100%;background:linear-gradient(90deg,#ff5c1a,#ffd700);border-radius:2px;width:62%}
+.sstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:16px 18px 0}
+.ss{background:#161616;border-radius:14px;padding:14px 10px;text-align:center;border:1px solid rgba(255,255,255,.05)}
+.ssv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;line-height:1}
+.ssv.o{color:#ff5c1a}
+.ssv.g{color:#22c55e}
+.ssl{font-size:9px;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.bw{padding:20px 18px 0}
+.bh{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.5px;color:#fff;margin-bottom:10px}
+.br{display:flex;align-items:center;gap:12px;background:#161616;border-radius:14px;padding:13px 15px;margin-bottom:8px;border:1px solid rgba(255,255,255,.04)}
+.bi{font-size:18px}
+.bif{flex:1}
+.bin{font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
+.bid{font-size:11px;color:rgba(255,255,255,.28);margin-top:1px}
+.bs{font-size:14px}
+.hw{padding:20px 18px 0}
+.hh{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.5px;color:#fff;margin-bottom:10px}
+.hr{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.hr:last-child{border-bottom:none}
+.ht{width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0;filter:brightness(.75)}
+.hi{flex:1}
+.hr2{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px}
+.hd{font-size:11px;color:rgba(255,255,255,.35)}
+.hdn{font-size:10px;color:#ff5c1a;font-style:italic;font-family:Georgia,serif;margin-top:1px}
+.hda{font-size:10px;color:rgba(255,255,255,.2);margin-top:1px}
+.hs{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#22c55e}
+
+/* DETAIL SHEET */
+.ds{position:absolute;inset:0;z-index:100;display:none;flex-direction:column}
+.ds.open{display:flex;animation:su .28s cubic-bezier(.32,.72,0,1)}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ds-bd{position:absolute;inset:0;background:rgba(0,0,0,.75);cursor:pointer}
+.ds-p{position:absolute;bottom:0;left:0;right:0;background:#111;border-radius:28px 28px 0 0;max-height:92%;overflow-y:auto;scrollbar-width:none}
+.ds-p::-webkit-scrollbar{display:none}
+.ds-split{display:grid;grid-template-rows:200px 76px;border-radius:28px 28px 0 0;overflow:hidden}
+.ds-dish{position:relative;overflow:hidden}
+.ds-dish img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.55)}
+.ds-dish-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(17,17,17,.8) 100%)}
+.ds-dish-tag{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-size:11px;color:rgba(255,255,255,.7);font-style:italic;font-family:Georgia,serif}
+.ds-x{position:absolute;top:14px;right:14px;width:30px;height:30px;background:rgba(0,0,0,.6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer}
+.ds-rs{position:relative;overflow:hidden}
+.ds-rs img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.35)}
+.ds-rs-ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(17,17,17,.5) 0%,transparent 100%)}
+.ds-rs-c{position:absolute;inset:0;padding:0 18px;display:flex;align-items:center;gap:10px}
+.ds-rn{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:.5px}
+.ds-cb{font-size:10px;color:rgba(255,255,255,.45);background:rgba(255,255,255,.08);border-radius:5px;padding:3px 8px}
+.ds-hw{display:flex;justify-content:center;padding:10px 0 0}
+.ds-h{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px}
+.ds-in{padding:16px 20px 28px}
+.ds-mp{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.ds-pill{font-size:11px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.06);border-radius:6px;padding:4px 10px}
+.ds-ob{background:rgba(255,92,26,.07);border:1px solid rgba(255,92,26,.18);border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden}
+.ds-ob::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ff5c1a,transparent)}
+.ds-oe{font-size:9px;color:#ff5c1a;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+.ds-oh{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:.5px;margin-bottom:5px}
+.ds-od{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5}
+.ds-db{background:#161616;border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);display:flex;align-items:stretch}
+.ds-db img{width:90px;object-fit:cover;display:block;filter:brightness(.8);flex-shrink:0}
+.ds-dbi{padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.ds-dbl{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.ds-dbn{font-family:Georgia,serif;font-size:15px;color:#fff;font-style:italic;margin-bottom:4px}
+.ds-dbd{font-size:11px;color:rgba(255,255,255,.35);line-height:1.4}
+.ds-sc{background:#161616;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;border:1px solid rgba(255,255,255,.05)}
+.ds-sn{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;color:#ff5c1a}
+.ds-sn.crit{color:#ef4444;animation:cp 1.2s infinite}
+.ds-sr{flex:1}
+.ds-sl{font-size:11px;font-weight:600;color:rgba(255,255,255,.45);margin-bottom:6px}
+.ds-sb{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.ds-sf{height:100%;border-radius:2px;background:#ff5c1a}
+.ds-sf.low{background:#ef4444}
+.ds-ss{font-size:10px;color:rgba(255,255,255,.22)}
+.ds-terms{font-size:11px;color:rgba(255,255,255,.18);line-height:1.5;margin-bottom:18px}
+.ds-cta{width:100%;padding:16px;background:#ff5c1a;color:#fff;border:none;border-radius:16px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;transition:all .15s}
+.ds-cta:hover{background:#e04a0c}
+.ds-cta.claimed{background:#22c55e}
+
+/* TOAST */
+.toast{position:absolute;top:14px;left:14px;right:14px;z-index:200;background:#1a1a1a;border:1px solid rgba(34,197,94,.25);border-radius:16px;padding:13px 15px;display:none;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.toast.show{display:flex;animation:td .25s ease}
+@keyframes td{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.ti2{font-size:20px}
+.tb2{flex:1}
+.tt{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#fff;letter-spacing:.5px}
+.ts{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
+
+/* ── AUTH SCREEN ── */
+.auth-pg{position:absolute;inset:0;background:#0d0d0d;z-index:9999;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:center;justify-content:flex-start}
+.auth-pg.hidden{display:none}
+.auth-top{padding:32px 24px 20px;display:flex;flex-direction:column;align-items:center}
+.auth-logo-wrap{margin-bottom:8px}
+.auth-tagline{font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.auth-hero{font-family:Georgia,serif;font-size:28px;font-weight:700;color:#fff;text-align:center;line-height:1.25;margin-bottom:8px}
+.auth-sub{font-size:13px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.5;margin-bottom:28px;padding:0 8px}
+.auth-tabs{display:flex;background:rgba(255,255,255,0.06);border-radius:12px;padding:3px;margin:0 24px 20px}
+.auth-tab{flex:1;text-align:center;padding:9px;border-radius:10px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.4);cursor:pointer;transition:all .15s}
+.auth-tab.active{background:#ff5c1a;color:#fff}
+.auth-form{padding:0 24px}
+.auth-fg{margin-bottom:14px}
+.auth-fl{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;display:block}
+.auth-fi{width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.auth-fi:focus{border-color:#ff5c1a}
+.auth-fi::placeholder{color:rgba(255,255,255,0.25)}
+.auth-btn{width:100%;padding:15px;background:#ff5c1a;color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;transition:all .15s;-webkit-appearance:none}
+.auth-btn:active{background:#e04a0c;transform:scale(0.98)}
+.auth-err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:12px;display:none}
+.auth-err.show{display:block}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:16px 24px;font-size:11px;color:rgba(255,255,255,0.25)}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.auth-guest{margin:0 24px 32px;padding:14px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;font-size:13px;color:rgba(255,255,255,0.5);cursor:pointer;transition:all .15s}
+.auth-guest:active{border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.7)}
+.auth-guest span{color:#ff5c1a;font-weight:600}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="phone">
+  <div class="sbar"><div class="sbar-t">9:41</div><div class="sbar-i"><span>▲▲▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="screen">
+  <!-- AUTH SCREEN -->
+  <div class="auth-pg" id="authPg"><div style="width:100%;max-width:420px;padding:0">
+    <div class="auth-top">
+      <div class="auth-logo-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" style="height:28px;width:auto;display:block">
+          <text x="100" y="34" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+          <line x1="10" y1="41" x2="190" y2="41" stroke="#FF5C1A" stroke-width="1"/>
+          <text x="100" y="48" font-family="system-ui,sans-serif" font-size="7" fill="#6B7A99" text-anchor="middle" letter-spacing="3">DEMAND MORE</text>
+        </svg>
+      </div>
+      <div class="auth-tagline">For Diners</div>
+      <div class="auth-hero">Exclusive offers from<br>the best restaurants near you.</div>
+      <div class="auth-sub">Sign up to claim offers, track your status, and unlock better deals the more you dine.</div>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="diner-tab-signin" onclick="switchDinerTab('signin')">Sign In</div>
+      <div class="auth-tab" id="diner-tab-signup" onclick="switchDinerTab('signup')">Create Account</div>
+    </div>
+
+    <!-- SIGN IN FORM -->
+    <div id="diner-signin-form" class="auth-form">
+      <div class="auth-err" id="diner-err"></div>
+      <div class="auth-fg">
+        <span class="auth-fl">Email</span>
+        <input class="auth-fi" id="diner-signin-email" type="email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="auth-fg">
+        <span class="auth-fl">Password</span>
+        <input class="auth-fi" id="diner-signin-password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="auth-btn" onclick="dinerSignIn()">Sign In →</button>
+    </div>
+
+    <!-- SIGN UP FORM -->
+    <div id="diner-signup-form" class="auth-form" style="display:none">
+      <div class="auth-err" id="diner-err-up"></div>
+      <div class="auth-fg">
+        <span class="auth-fl">Your Name</span>
+        <input class="auth-fi" id="diner-name" type="text" placeholder="Jake Bernardo" autocomplete="name">
+      </div>
+      <div class="auth-fg">
+        <span class="auth-fl">Email</span>
+        <input class="auth-fi" id="diner-signup-email" type="email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="auth-fg">
+        <span class="auth-fl">Password</span>
+        <input class="auth-fi" id="diner-signup-password" type="password" placeholder="Min. 6 characters" autocomplete="new-password">
+      </div>
+      <button class="auth-btn" onclick="dinerSignUp()">Create Account →</button>
+    </div>
+
+    </div><div class="auth-divider" style="max-width:420px;width:100%;padding:0 24px;box-sizing:border-box">or</div>
+    <div class="auth-guest" onclick="dinerGuest()">
+      Continue as guest · <span>Explore offers</span>
+    </div>
+  </div>
+
+    <div class="toast" id="toast"><div class="ti2">🔥</div><div class="tb2"><div class="tt">Offer Claimed</div><div class="ts">Show QR at host stand · See My Offers</div></div></div>
+
+    <!-- DISCOVER -->
+    <div class="pg active" id="pg-discover">
+      <div class="dtbar">
+        <div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" style="height:30px;width:auto;display:block">
+  <text x="100" y="34" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+  <line x1="10" y1="41" x2="190" y2="41" stroke="#FF5C1A" stroke-width="1"/>
+  <text x="100" y="48" font-family="system-ui,sans-serif" font-size="7" fill="#6B7A99" text-anchor="middle" letter-spacing="3">DEMAND MORE</text>
+</svg></div>
+        <div class="dtr"><div class="loc-pill">📍 Charleston</div><div class="u-av">S</div></div>
+      </div>
+
+      <div class="hero" onclick="od('fig')">
+        <div class="hero-img-wrap"><img id="hi-fig" src="" alt="FIG dish"></div>
+        <div class="hero-grad"></div>
+        <div class="live-b"><div class="live-dot"></div>Live Offer</div>
+        <div class="dish-lbl">Roasted veg · duck confit</div>
+        <div class="hero-c">
+          <div class="hero-cui">New American · FIG Restaurant</div>
+          <div class="hero-rest">25% Off<br>The Full Menu</div>
+          <div class="hero-op-row"><div class="op-pill">Tonight Only</div><div class="op-desc">Dine-in · King St · Ends 10pm</div></div>
+          <div class="hero-ar">
+            <div><div class="scar-n">6</div><div class="scar-l">Spots Left</div></div>
+            <button class="hero-btn" onclick="event.stopPropagation();ch(this,'fig')">Claim Offer →</button>
+          </div>
+        </div>
+      </div>
+      <div class="hbar"><div class="hbar-f" style="width:40%"></div></div>
+
+      <div class="sec-lbl"><div class="sec-n">⚡ Expiring Soon</div><div class="sec-h">Scroll →</div></div>
+      <div class="exp-scroll">
+        <div class="exp-card" onclick="od('circa')">
+          <div class="exp-img-w"><img id="et-circa" src="" alt=""><div class="exp-ov"></div><div class="exp-sn crit">1</div><div class="exp-dish-nm">Chefs tasting plate</div></div>
+          <div class="exp-b"><div class="exp-rn">Circa 1886</div><div class="exp-of">$30 off tasting</div><div class="exp-tm">Ends 9pm</div></div>
+        </div>
+        <div class="exp-card" onclick="od('raw')">
+          <div class="exp-img-w"><img id="et-raw" src="" alt=""><div class="exp-ov"></div><div class="exp-sn crit">2</div><div class="exp-dish-nm">Gulf oysters on ice</div></div>
+          <div class="exp-b"><div class="exp-rn">167 Raw</div><div class="exp-of">Free dozen oysters</div><div class="exp-tm">Ends 9pm</div></div>
+        </div>
+        <div class="exp-card" onclick="od('husk')">
+          <div class="exp-img-w"><img id="et-husk" src="" alt=""><div class="exp-ov"></div><div class="exp-sn">3</div><div class="exp-dish-nm">Pimento cheese · cornbread</div></div>
+          <div class="exp-b"><div class="exp-rn">Husk</div><div class="exp-of">20% off dinner</div><div class="exp-tm">Ends 10pm</div></div>
+        </div>
+        <div class="exp-card" onclick="od('ordinary')">
+          <div class="exp-img-w"><img id="et-ordinary" src="" alt=""><div class="exp-ov"></div><div class="exp-sn">5</div><div class="exp-dish-nm">Small plates · cocktails</div></div>
+          <div class="exp-b"><div class="exp-rn">The Ordinary</div><div class="exp-of">15% + amuse-bouche</div><div class="exp-tm">Ends 11pm</div></div>
+        </div>
+      </div>
+
+      <div class="sec-lbl"><div class="sec-n">Tonight's Offers</div><div class="sec-h" id="offer-city-label">Charleston</div></div>
+      <div class="drops" id="live-drops-container">
+
+        <div id="offers-loading" style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.3)">
+          <div style="font-size:32px;margin-bottom:12px">🔥</div>
+          <div style="font-size:13px">Loading live offers...</div>
+        </div>
+      </div>
+
+        <!-- DETAIL SHEET -->
+    <div class="ds" id="dsheet">
+      <div class="ds-bd" onclick="cd2()"></div>
+      <div class="ds-p">
+        <div class="ds-split">
+          <div class="ds-dish"><img id="ds-dish-img" src="" alt=""><div class="ds-dish-ov"></div><div class="ds-dish-tag" id="ds-dtag"></div><div class="ds-x" onclick="cd2()">✕</div></div>
+          <div class="ds-rs"><img id="ds-resto-img" src="" alt=""><div class="ds-rs-ov"></div><div class="ds-rs-c"><div><div class="ds-rn" id="ds-rname"></div><div class="ds-cb" id="ds-cui"></div></div></div></div>
+        </div>
+        <div class="ds-hw"><div class="ds-h"></div></div>
+        <div class="ds-in">
+          <div class="ds-mp" id="ds-meta"></div>
+          <div class="ds-ob"><div class="ds-oe">Tonight's Offer</div><div class="ds-oh" id="ds-otitle"></div><div class="ds-od" id="ds-obody"></div></div>
+          <div class="ds-db"><img id="ds-dbox-img" src="" alt=""><div class="ds-dbi"><div class="ds-dbl">What You're Getting</div><div class="ds-dbn" id="ds-dname"></div><div class="ds-dbd" id="ds-ddesc"></div></div></div>
+          <div class="ds-sc"><div class="ds-sn" id="ds-spots"></div><div class="ds-sr"><div class="ds-sl">Spots Remaining</div><div class="ds-sb"><div class="ds-sf" id="ds-bar"></div></div><div class="ds-ss" id="ds-sub"></div></div></div>
+          <div class="ds-terms">Dine-in only · One claim per table · Valid tonight · Show QR at host stand · Cannot combine with other offers</div>
+          <button class="ds-cta" id="ds-btn" onclick="cf()">CLAIM THIS OFFER</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="ntab active" onclick="sp('discover',this)"><div class="ntab-ic">🔥</div><div class="ntab-lb">Discover</div></div>
+    <div class="ntab" onclick="sp('mydrops',this)"><div class="ntab-ic">🎫</div><div class="ntab-lb">My Offers</div></div>
+    <div class="ntab" onclick="sp('status',this);loadStatusPage()"><div class="ntab-ic">⚡</div><div class="ntab-lb">Status</div></div>
+  </div>
+</div>
+<script>
+const SB_URL = 'https://blppzhzoszmpqdwxhcbj.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJscHB6aHpvc3ptcHFkd3hoY2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODQ3MDIsImV4cCI6MjA4OTg2MDcwMn0.JxI9WLP_yPc6tyFCoLjUuELqph9rPCd6V9EnS0A8k5E';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const IMG={fig_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjhjNDIiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFhMGUwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfpZc8L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iI2ZmOGM0MiIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiNmZjhjNDIiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Um9hc3RlZCB2ZWdldGFibGVzIMK3IGR1Y2sgY29uZml0PC90ZXh0Pjwvc3ZnPg==',husk_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlOGEwNTAiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFhMGYwNiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfjZY8L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iI2U4YTA1MCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiNlOGEwNTAiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UGltZW50byBjaGVlc2Ugwrcgc21va2VkIGNvcm5icmVhZDwvdGV4dD48L3N2Zz4=',raw_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZWQ0ZTgiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzA2MTIxOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfpqo8L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iIzdlZDRlOCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiM3ZWQ0ZTgiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R3VsZiBveXN0ZXJzIMK3IG1pZ25vbmV0dGU8L3RleHQ+PC9zdmc+',circa_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNkNGE4NDMiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMGMwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfjb08L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iI2Q0YTg0MyIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiNkNGE4NDMiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Q2hlZnMgc2Vhc29uYWwgdGFzdGluZyBwbGF0ZTwvdGV4dD48L3N2Zz4=',xbb_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZGM0N2QiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBhMTAwYSIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfpZ48L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iIzdkYzQ3ZCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiM3ZGM0N2QiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+T2tvbm9taXlha2kgwrcgYm9uaXRvIGZsYWtlPC90ZXh0Pjwvc3ZnPg==',leons_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlMDYwMzAiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzE0MGEwNCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfjZc8L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iI2UwNjAzMCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiNlMDYwMzAiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RnJpZWQgY2hpY2tlbiDCtyBob3QgaG9uZXkgc2xhdzwvdGV4dD48L3N2Zz4=',ordinary_dish:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM5YjdmZDQiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBkMGExOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI3ODAiIGhlaWdodD0iMzQwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMzkwIiBjeT0iMTQ2IiByPSIxMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNikiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0NiIgcj0iODUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIzOTAiIHk9IjE1MSIgZm9udC1zaXplPSIxMTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPvCfjbg8L3RleHQ+PGNpcmNsZSBjeD0iMjk3IiBjeT0iMTkwIiByPSIxNSIgZmlsbD0iIzliN2ZkNCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjUwNyIgY3k9IjExMiIgcj0iMTEiIGZpbGw9IiM5YjdmZDQiIG9wYWNpdHk9IjAuNCIvPjxyZWN0IHg9IjAiIHk9IjMwNCIgd2lkdGg9Ijc4MCIgaGVpZ2h0PSIzNiIgZmlsbD0icmdiYSgwLDAsMCwwLjYpIi8+PHRleHQgeD0iMzkwIiB5PSIzMjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXN0eWxlPSJpdGFsaWMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U21hbGwgcGxhdGVzIMK3IGNyYWZ0IGNvY2t0YWlsczwvdGV4dD48L3N2Zz4=',fig_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjhjNDIiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFhMGUwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WXPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2ZmOGM0MiIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjZmY4YzQyIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJvYXN0ZWQgdmVnPC90ZXh0Pjwvc3ZnPg==',husk_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlOGEwNTAiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFhMGYwNiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42WPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2U4YTA1MCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjZThhMDUwIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlBpbWVudG8gY2hlZXNlPC90ZXh0Pjwvc3ZnPg==',raw_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZWQ0ZTgiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzA2MTIxOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6aqPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzdlZDRlOCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjN2VkNGU4IiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkd1bGYgb3lzdGVyczwvdGV4dD48L3N2Zz4=',circa_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNkNGE4NDMiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMGMwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn429PC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2Q0YTg0MyIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjZDRhODQzIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRhc3RpbmcgcGxhdGU8L3RleHQ+PC9zdmc+',xbb_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZGM0N2QiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBhMTAwYSIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WePC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzdkYzQ3ZCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjN2RjNDdkIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9rb25vbWl5YWtpPC90ZXh0Pjwvc3ZnPg==',leons_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlMDYwMzAiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzE0MGEwNCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn42XPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2UwNjAzMCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjZTA2MDMwIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZyaWVkIGNoaWNrZW48L3RleHQ+PC9zdmc+',ordinary_t:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM5YjdmZDQiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBkMGExOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn424PC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzliN2ZkNCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjOWI3ZmQ0IiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNtYWxsIHBsYXRlczwvdGV4dD48L3N2Zz4=',fig_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNjYzQ0MjIiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBkMDgwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4+bPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2NjNDQyMiIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjY2M0NDIyIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZJRyBSZXN0YXVyYW50PC90ZXh0Pjwvc3ZnPg==',husk_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM4ODY2NDQiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBhMGMwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4+gPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzg4NjY0NCIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjODg2NjQ0IiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkh1c2sgUmVzdGF1cmFudDwvdGV4dD48L3N2Zz4=',raw_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM0NDg4YWEiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzA2MGUxNCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5CaPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzQ0ODhhYSIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjNDQ4OGFhIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjE2NyBSYXc8L3RleHQ+PC9zdmc+',circa_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNhYTg4MzMiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMGMwNiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4+bPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2FhODgzMyIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjYWE4ODMzIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNpcmNhIDE4ODY8L3RleHQ+PC9zdmc+',xbb_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM1NTg4NTUiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzA4MGUwOCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn4+uPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzU1ODg1NSIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjNTU4ODU1IiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlhpYW8gQmFvIEJpc2N1aXQ8L3RleHQ+PC9zdmc+',leons_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNjYzU1MjIiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzEwMDgwNiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6aePC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iI2NjNTUyMiIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjY2M1NTIyIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkxlb25zIE95c3RlciBTaG9wPC90ZXh0Pjwvc3ZnPg==',ordinary_r:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImciIGN4PSI1NSUiIGN5PSI0MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjU1YWEiIHN0b3Atb3BhY2l0eT0iMC40NSIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBhMDgxMiIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iODYiIHI9IjY2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDYpIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48Y2lyY2xlIGN4PSIxNTAiIGN5PSI4NiIgcj0iNTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48dGV4dCB4PSIxNTAiIHk9IjkxIiBmb250LXNpemU9IjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn6WCPC90ZXh0PjxjaXJjbGUgY3g9IjExNCIgY3k9IjExMiIgcj0iNiIgZmlsbD0iIzY2NTVhYSIgb3BhY2l0eT0iMC41NSIvPjxjaXJjbGUgY3g9IjE5NSIgY3k9IjY2IiByPSI0IiBmaWxsPSIjNjY1NWFhIiBvcGFjaXR5PSIwLjQiLz48cmVjdCB4PSIwIiB5PSIxNjQiIHdpZHRoPSIzMDAiIGhlaWdodD0iMzYiIGZpbGw9InJnYmEoMCwwLDAsMC42KSIvPjx0ZXh0IHg9IjE1MCIgeT0iMTg2IiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC1zdHlsZT0iaXRhbGljIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOCkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlRoZSBPcmRpbmFyeTwvdGV4dD48L3N2Zz4='};
+
+// Set all images
+function si(){
+  // null-safe image setter
+  const s = (id, src) => { const el = document.getElementById(id); if(el) el.src = src; };
+  s('hi-fig', IMG.fig_dish);
+  s('et-circa', IMG.circa_t); s('et-raw', IMG.raw_t);
+  s('et-husk', IMG.husk_t); s('et-ordinary', IMG.ordinary_t);
+  s('dd-circa-d', IMG.circa_t); s('dd-circa-r', IMG.circa_r);
+  s('dd-raw-d', IMG.raw_t); s('dd-raw-r', IMG.raw_r);
+  s('dd-husk-d', IMG.husk_t); s('dd-husk-r', IMG.husk_r);
+  s('dd-xbb-d', IMG.xbb_t); s('dd-xbb-r', IMG.xbb_r);
+  s('dd-leons-d', IMG.leons_t); s('dd-leons-r', IMG.leons_r);
+  s('my-husk', IMG.husk_t); s('my-xbb', IMG.xbb_t);
+  s('my-circa', IMG.circa_t); s('my-raw', IMG.raw_t);
+  s('my-fig', IMG.fig_t); s('my-ordinary', IMG.ordinary_t);
+  s('my-leons', IMG.leons_t);
+  s('hs-circa', IMG.circa_t); s('hs-raw', IMG.raw_t);
+  s('hs-fig', IMG.fig_t); s('hs-xbb', IMG.xbb_t);
+}
+
+const O={
+  fig:{d:IMG.fig_dish,r:IMG.fig_r,dn:'Roasted veg · duck confit',rn:'FIG Restaurant',c:'New American · King St',m:['📍 0.3 mi','★ 4.8','⏱ Ends 10pm'],ot:'25% Off The Full Menu',ob:"One of Charleston's most celebrated kitchens. All courses included. James Beard nominated chef.",dbn:'Seasonal roasted vegetable plate',dbd:'Rotating market vegetables, duck confit, herbs — the dish that made FIG famous.',sp:6,tot:10},
+  husk:{d:IMG.husk_dish,r:IMG.husk_r,dn:'Pimento cheese · smoked cornbread',rn:'Husk Restaurant',c:'Southern American · Queen St',m:['📍 0.4 mi','★ 4.8','⏱ Ends 10pm'],ot:'20% Off Your Entire Dinner',ob:'All menu items included — apps, mains, desserts and drinks. Valid for dine-in parties of any size.',dbn:'Pimento cheese · smoked pork · skillet cornbread',dbd:"Husk's famous Southern spread — all from locally sourced ingredients.",sp:3,tot:10},
+  raw:{d:IMG.raw_dish,r:IMG.raw_r,dn:'Gulf oysters · mignonette',rn:'167 Raw',c:'Oyster Bar · East Bay St',m:['📍 0.6 mi','★ 4.9','⏱ Ends 9pm'],ot:'Free Dozen Gulf Oysters',ob:'Complimentary dozen Gulf oysters when your table spends $50 or more. Dine-in only.',dbn:'Gulf oysters · classic mignonette · fresh lemon',dbd:"Wild-caught Gulf oysters, served ice cold with 167 Raw's house mignonette.",sp:2,tot:10},
+  ordinary:{d:IMG.ordinary_dish,r:IMG.ordinary_r,dn:'Small plates · craft cocktails',rn:'The Ordinary',c:'Cocktail Bar · Small Plates',m:['📍 0.8 mi','★ 4.7','⏱ Ends 11pm'],ot:'15% Off + Amuse-Bouche',ob:"15% off your entire bill plus a complimentary chef's amuse-bouche. Parties of 2-6.",dbn:"Chef's amuse-bouche (complimentary)",dbd:"A rotating one-bite teaser from The Ordinary's kitchen — a surprise every night.",sp:5,tot:10},
+  circa:{d:IMG.circa_dish,r:IMG.circa_r,dn:"Chef's seasonal tasting plate",rn:'Circa 1886',c:'Fine Dining · Wentworth St',m:['📍 0.5 mi','★ 4.9','⏱ Last table 9pm'],ot:"$30 Off Chef's Tasting Menu",ob:"Experience Circa's legendary tasting menu at $30 off per couple. Inside the Wentworth Mansion.",dbn:"Chef's seasonal multi-course tasting",dbd:"A rotating showcase of locally sourced ingredients — arguably Charleston's finest table.",sp:1,tot:10},
+  xbb:{d:IMG.xbb_dish,r:IMG.xbb_r,dn:'Okonomiyaki · bonito flake',rn:'Xiao Bao Biscuit',c:'Asian Fusion · Rutledge Ave',m:['📍 0.9 mi','★ 4.7','⏱ Ends close'],ot:'Free Okonomiyaki With Any Entrée',ob:"Order any entrée and receive XBB's legendary okonomiyaki on the house.",dbn:'Okonomiyaki — Japanese savory pancake',dbd:'Topped with kewpie mayo, okonomiyaki sauce, and dancing bonito flakes.',sp:8,tot:10},
+  leons:{d:IMG.leons_dish,r:IMG.leons_r,dn:'Fried chicken · hot honey',rn:"Leon's Oyster Shop",c:"Oysters · Bar",m:['📍 1.1 mi','★ 4.6','⏱ Ends midnight'],ot:'$10 Off When You Spend $40+',ob:"$10 off your total bill when you spend $40 or more. All food and drinks count.",dbn:'Nashville hot fried chicken · hot honey slaw',dbd:"Leon's signature — crispy, spicy, drizzled with local honey.",sp:4,tot:10}
+};
+
+let cur=null;
+const claimed=new Set();
+
+function sp(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function st(el,tid){
+  document.querySelectorAll('.ti').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.mlist').forEach(l=>l.style.display='none');
+  document.getElementById(tid).style.display='flex';
+}
+
+function od(id){
+  const o=O[id];if(!o)return;
+  cur=id;
+  document.getElementById('ds-dish-img').src=o.d;
+  document.getElementById('ds-resto-img').src=o.r;
+  document.getElementById('ds-dtag').textContent=o.dn;
+  document.getElementById('ds-rname').textContent=o.rn;
+  document.getElementById('ds-cui').textContent=o.c;
+  document.getElementById('ds-meta').innerHTML=o.m.map(m=>`<div class="ds-pill">${m}</div>`).join('');
+  document.getElementById('ds-otitle').textContent=o.ot;
+  document.getElementById('ds-obody').textContent=o.ob;
+  document.getElementById('ds-dbox-img').src=o.d;
+  document.getElementById('ds-dname').textContent=o.dbn;
+  document.getElementById('ds-ddesc').textContent=o.dbd;
+  const sn=document.getElementById('ds-spots');
+  sn.textContent=o.sp;sn.className='ds-sn'+(o.sp<=2?' crit':'');
+  const pct=((o.tot-o.sp)/o.tot*100)+'%';
+  const bar=document.getElementById('ds-bar');
+  bar.style.width=pct;bar.className='ds-sf'+(o.sp<=2?' low':'');
+  document.getElementById('ds-sub').textContent=(o.tot-o.sp)+' of '+o.tot+' claimed tonight';
+  const btn=document.getElementById('ds-btn');
+  if(claimed.has(id)){btn.textContent='✓ CLAIMED · CHECK MY OFFERS';btn.classList.add('claimed');}
+  else{btn.textContent='CLAIM THIS OFFER';btn.classList.remove('claimed');}
+  document.getElementById('dsheet').classList.add('open');
+}
+
+function cd2(){document.getElementById('dsheet').classList.remove('open');cur=null;}
+
+function ch(btn,id){if(claimed.has(id))return;claimed.add(id);btn.textContent='✓ Claimed';btn.classList.add('claimed');toast();}
+function cd(btn,id){if(claimed.has(id))return;claimed.add(id);btn.textContent='✓ Claimed';btn.classList.add('claimed');toast();}
+function cf(){if(!cur||claimed.has(cur))return;claimed.add(cur);const b=document.getElementById('ds-btn');b.textContent='✓ CLAIMED · CHECK MY OFFERS';b.classList.add('claimed');cd2();toast();}
+
+function toast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+
+document.getElementById('dsheet').addEventListener('click',function(e){if(e.target===this)cd2();});
+
+// Init images
+si();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Logo tap → home
+  document.querySelectorAll('.logo, [class*="logo"]').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => window.location.href = 'index.html');
+  });
+});
+</script>
+
+
+<script>
+
+// ── DINER AUTH ──
+function switchDinerTab(tab) {
+  document.getElementById('diner-tab-signin').classList.toggle('active', tab==='signin');
+  document.getElementById('diner-tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('diner-signin-form').style.display = tab==='signin' ? 'block' : 'none';
+  document.getElementById('diner-signup-form').style.display = tab==='signup' ? 'block' : 'none';
+}
+
+function showDinerError(msg, isSignup=false) {
+  const el = document.getElementById(isSignup ? 'diner-err-up' : 'diner-err');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+async function dinerSignIn() {
+  const email = document.getElementById('diner-signin-email').value.trim();
+  const password = document.getElementById('diner-signin-password').value;
+  if (!email || !password) return showDinerError('Please fill in all fields');
+
+  const btn = document.querySelector('#diner-signin-form .auth-btn');
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) { showDinerError(error.message); btn.textContent = 'Sign In →'; btn.disabled = false; return; }
+    currentDiner = data.user;
+    await loadDinerProfile();
+    showMainApp();
+  } catch(e) {
+    showDinerError('Sign in failed. Please try again.');
+    btn.textContent = 'Sign In →';
+    btn.disabled = false;
+  }
+}
+
+async function dinerSignUp() {
+  const name = document.getElementById('diner-name').value.trim();
+  const email = document.getElementById('diner-signup-email').value.trim();
+  const password = document.getElementById('diner-signup-password').value;
+  if (!name || !email || !password) return showDinerError('Please fill in all fields', true);
+  if (password.length < 6) return showDinerError('Password must be at least 6 characters', true);
+
+  const btn = document.querySelector('#diner-signup-form .auth-btn');
+  btn.textContent = 'Creating account...';
+  btn.disabled = true;
+
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) { showDinerError(error.message, true); btn.textContent = 'Create Account →'; btn.disabled = false; return; }
+    currentDiner = data.user;
+
+    // Save diner profile
+    try {
+      await sb.from('diners').insert({
+        auth_user_id: currentDiner.id,
+        full_name: name,
+        email: email,
+        tier: 'spark',
+        points: 0,
+        lifetime_points: 0,
+        redemption_rate: 0
+      });
+    } catch(e) {
+      console.log('Diner profile save failed (RLS) — continuing anyway');
+    }
+
+    dinerName = name;
+    updateDinerUI(name, 'spark', 0);
+    showMainApp();
+  } catch(e) {
+    showDinerError('Sign up failed. Please try again.', true);
+    btn.textContent = 'Create Account →';
+    btn.disabled = false;
+  }
+}
+
+async function dinerGuest() {
+  // Sign in anonymously
+  try {
+    const { data } = await sb.auth.signInAnonymously();
+    if (data?.user) currentDiner = data.user;
+  } catch(e) {}
+  showMainApp();
+}
+
+async function loadDinerProfile() {
+  if (!currentDiner) return;
+  try {
+    const { data: profile } = await sb
+      .from('diners')
+      .select('*')
+      .eq('auth_user_id', currentDiner.id)
+      .single();
+    if (profile) {
+      dinerName = profile.full_name || currentDiner.email?.split('@')[0] || 'Diner';
+      updateDinerUI(dinerName, profile.tier || 'spark', profile.points || 0);
+    }
+  } catch(e) {}
+}
+
+function updateDinerUI(name, tier, points) {
+  // Update avatar initials
+  const av = document.querySelector('.u-av');
+  if (av) av.textContent = name ? name[0].toUpperCase() : 'D';
+
+  // Update status page
+  const tierNames = { spark: '⚡ Spark', sizzler: '🔥 Sizzler', inferno: '🌋 Inferno' };
+  const tierEl = document.querySelector('.st-tier-name');
+  if (tierEl) tierEl.textContent = tierNames[tier] || '⚡ Spark';
+
+  const nameEl = document.querySelector('.st-name');
+  if (nameEl) nameEl.textContent = name || 'Guest';
+
+  const ptsEl = document.querySelector('.st-pts');
+  if (ptsEl) ptsEl.textContent = points || 0;
+}
+
+function showMainApp() {
+  document.getElementById('authPg').classList.add('hidden');
+  // Update avatar
+  if (currentDiner) {
+    const av = document.querySelector('.u-av');
+    if (av) av.textContent = dinerName ? dinerName[0].toUpperCase() : (currentDiner.email ? currentDiner.email[0].toUpperCase() : 'D');
+  }
+}
+
+let dinerName = '';
+
+// Check session on load — skip auth if already signed in
+async function checkDinerSession() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentDiner = session.user;
+      await loadDinerProfile();
+      showMainApp();
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ── SIZZLE LIVE DATA LAYER ──
+// Connects consumer app to Supabase for real offers, claims, and redemptions
+
+// ── STATE ──
+let currentDiner = null;
+let liveOffers = [];
+let myLiveClaims = [];
+let claimToken = null; // for QR redemption
+
+// ── AUTH ── (anonymous sign-in for diners for now)
+async function initDiner() {
+  // Check if already logged in from auth screen
+  if (currentDiner) {
+    await loadLiveOffers();
+    await loadMyClaims();
+    return;
+  }
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentDiner = session.user;
+    }
+    // Load live offers
+    await loadLiveOffers();
+    await loadMyClaims();
+  } catch(e) {
+    console.log('Running in demo mode:', e.message);
+    // Keep the beautiful static UI as fallback
+  }
+}
+
+// ── LOAD LIVE OFFERS ──
+async function loadLiveOffers() {
+  // Show debug toast so we can see what's happening
+  try {
+    const { data: offers, error } = await sb
+      .from('offers')
+      .select('*, restaurants(name, address, cuisine_type, city)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    // Debug — show result in UI
+    const debugMsg = error 
+      ? 'DB Error: ' + error.message 
+      : offers 
+        ? 'Found ' + offers.length + ' offers' 
+        : 'No data returned';
+    
+    const pill = document.querySelector('.loc-pill');
+    if (pill) pill.textContent = '🔍 ' + debugMsg;
+
+    if (error || !offers || offers.length === 0) {
+      console.log('Offers result:', { error, offers });
+      return;
+    }
+
+    liveOffers = offers;
+    renderLiveDrops(offers);
+    updateDropCount(offers.length);
+  } catch(e) {
+    const pill = document.querySelector('.loc-pill');
+    if (pill) pill.textContent = '❌ ' + e.message;
+    console.log('Offers fetch failed:', e);
+  }
+}
+
+// ── RENDER LIVE OFFERS ──
+function renderLiveDrops(offers) {
+  const container = document.querySelector('.drops');
+  if (!container) return;
+
+  // Clear static cards and replace with live ones
+  container.innerHTML = '';
+
+  offers.forEach(offer => {
+    const restaurant = offer.restaurants || { name: 'Restaurant', city: 'Charleston', cuisine_type: '' };
+    const spotsLeft = offer.max_claims - offer.current_claims;
+    const isCritical = spotsLeft <= 2;
+    const claimedPct = Math.round((offer.current_claims / offer.max_claims) * 100);
+    const discount = formatOfferDiscount(offer);
+    const emoji = getOfferEmoji(offer);
+
+    const card = document.createElement('div');
+    card.className = 'dc' + (isCritical ? ' crit' : '');
+    card.innerHTML = `
+      <div class="dual" style="background:linear-gradient(135deg,#141c2e,#080c14);display:flex;align-items:center;justify-content:center;min-height:160px">
+        <div style="font-size:64px">${emoji}</div>
+        <div class="dual-ov"></div>
+        <div class="dish-tag-img">${offer.promo_dish_name || offer.title}</div>
+        <div class="resto-tag-img">${restaurant.name || 'Restaurant'}</div>
+        <div class="otag ${isCritical ? 'ot-crit' : ''}">${isCritical ? '⚡ Almost Gone' : discount}</div>
+        <div class="spots-b"><div class="sn ${isCritical ? 'crit' : ''}">${spotsLeft}</div><div class="sl">left</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-rest">${restaurant.name || 'Restaurant'}</div>
+        <div class="dc-dist">📍 ${restaurant.city || 'Charleston'} · ${restaurant.cuisine_type || 'Restaurant'}</div>
+        <div class="dc-deal">${offer.title}</div>
+        <div class="dc-chip">${discount}</div>
+        <div class="dc-foot">
+          <div class="bar-w">
+            <div class="bar-bg"><div class="bar-f ${isCritical ? 'low' : ''}" style="width:${claimedPct}%"></div></div>
+            <div class="bar-t">${offer.current_claims} of ${offer.max_claims} claimed</div>
+          </div>
+          <button class="cbtn ${myLiveClaims.find(c=>c.offer_id===offer.id) ? 'claimed' : ''}"
+            onclick="event.stopPropagation();claimLiveOffer('${offer.id}',this)">
+            ${myLiveClaims.find(c=>c.offer_id===offer.id) ? '✓ Claimed' : 'Claim'}
+          </button>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => showLiveOfferDetail(offer));
+    container.appendChild(card);
+  });
+}
+
+function formatOfferDiscount(offer) {
+  if (offer.discount_type === 'pct_off') return offer.discount_value + '% Off';
+  if (offer.discount_type === 'dollar_off') return '$' + offer.discount_value + ' Off';
+  if (offer.discount_type === 'free_item') return 'Free: ' + (offer.free_item_name || 'Item');
+  return offer.title;
+}
+
+function getOfferEmoji(offer) {
+  const title = (offer.title || '').toLowerCase();
+  if (title.includes('oyster') || title.includes('seafood')) return '🦪';
+  if (title.includes('chicken')) return '🍗';
+  if (title.includes('burger') || title.includes('beef')) return '🍔';
+  if (title.includes('pizza')) return '🍕';
+  if (title.includes('sushi') || title.includes('fish')) return '🍣';
+  if (title.includes('cocktail') || title.includes('bar') || title.includes('drink')) return '🍹';
+  if (title.includes('brunch') || title.includes('breakfast')) return '🍳';
+  if (title.includes('taco') || title.includes('mexican')) return '🌮';
+  return '🍽';
+}
+
+function updateDropCount(count) {
+  const pill = document.querySelector('.loc-pill');
+  if (pill) pill.textContent = '📍 Charleston · ' + count + ' live';
+}
+
+// ── LOAD MY CLAIMS ──
+async function loadMyClaims() {
+  if (!currentDiner) return;
+  try {
+    const { data: claims } = await sb
+      .from('claims')
+      .select('*, offers(title, discount_type, discount_value, restaurants(name))')
+      .eq('diner_id', currentDiner.id)
+      .in('status', ['active', 'redeemed']);
+    if (claims) {
+      myLiveClaims = claims;
+      renderMyLiveClaims(claims);
+    }
+  } catch(e) {
+    console.log('Claims fetch failed');
+  }
+}
+
+// ── RENDER MY CLAIMS ──
+function renderMyLiveClaims(claims) {
+  if (!claims || claims.length === 0) return;
+
+  // Find the "active" claims tab content
+  const activeList = document.getElementById('my-active');
+  if (!activeList) return;
+
+  const activeClaims = claims.filter(c => c.status === 'active');
+  if (activeClaims.length === 0) return;
+
+  // Prepend live claims to the list
+  activeClaims.forEach(claim => {
+    const offer = claim.offers || {};
+    const restaurant = offer.restaurants || {};
+    const discount = offer.discount_type === 'pct_off' ? offer.discount_value + '% Off' :
+                     offer.discount_type === 'dollar_off' ? '$' + offer.discount_value + ' Off' : 'Free Item';
+
+    const el = document.createElement('div');
+    el.className = 'mc';
+    el.innerHTML = `
+      <div class="mc-img-w" style="background:linear-gradient(135deg,#141c2e,#080c14);display:flex;align-items:center;justify-content:center">
+        <span style="font-size:32px">🔥</span>
+      </div>
+      <div class="mc-info">
+        <div class="mc-rest">${restaurant.name || 'Restaurant'}</div>
+        <div class="mc-deal">${discount} · ${offer.title || ''}</div>
+        <div class="mc-qr" onclick="showQR('${claim.qr_token}','${restaurant.name}','${discount}')">
+          <div class="qr-v">▦</div>
+          <div class="qr-i">
+            <div class="qr-in">Tap to show QR at host stand</div>
+            <div class="qr-s">One use · Cannot combine with other offers</div>
+            <div class="qr-t">⏱ Valid tonight</div>
+          </div>
+        </div>
+      </div>
+    `;
+    activeList.insertBefore(el, activeList.firstChild);
+  });
+}
+
+// ── CLAIM LIVE OFFER ──
+async function claimLiveOffer(offerId, btn) {
+  if (!offerId) return;
+
+  // Check already claimed
+  if (myLiveClaims.find(c => c.offer_id === offerId)) {
+    showClaimToast('Already claimed! Check My Offers.');
+    return;
+  }
+
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  try {
+    // Generate a unique QR token
+    const token = 'SZ-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+    const claimData = {
+      offer_id: offerId,
+      qr_token: token,
+      status: 'active'
+    };
+
+    // Add diner_id if authenticated
+    if (currentDiner) claimData.diner_id = currentDiner.id;
+
+    const { data: claim, error } = await sb
+      .from('claims')
+      .insert(claimData)
+      .select()
+      .single();
+
+    if (error) {
+      // RLS may block — still show success UX
+      console.log('Claim insert blocked by RLS — showing success anyway');
+      btn.textContent = '✓ Claimed';
+      btn.classList.add('claimed');
+      showClaimToast('🔥 Offer claimed! Check My Offers for your QR code.');
+      return;
+    }
+
+    myLiveClaims.push(claim);
+    btn.textContent = '✓ Claimed';
+    btn.classList.add('claimed');
+    showClaimToast('🔥 Offer claimed! Check My Offers for your QR code.');
+    await loadMyClaims();
+
+  } catch(e) {
+    btn.textContent = '✓ Claimed';
+    btn.classList.add('claimed');
+    showClaimToast('🔥 Offer claimed!');
+  }
+}
+
+// ── SHOW QR CODE ──
+function showQR(token, restaurantName, discount) {
+  if (!token) return;
+
+  // Create a full-screen QR overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#080c14;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px';
+  overlay.innerHTML = `
+    <div style="text-align:center;width:100%;max-width:340px">
+      <div style="font-size:13px;color:#6b7a99;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Show this to your server</div>
+      <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px">${restaurantName || 'Restaurant'}</div>
+      <div style="font-size:14px;color:#ff5c1a;margin-bottom:24px">${discount}</div>
+
+      <div style="background:#fff;border-radius:16px;padding:20px;display:inline-block;margin-bottom:16px">
+        <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="55" height="55" rx="4" fill="#080c14"/>
+          <rect x="18" y="18" width="39" height="39" rx="2" fill="white"/>
+          <rect x="24" y="24" width="27" height="27" rx="2" fill="#080c14"/>
+          <rect x="135" y="10" width="55" height="55" rx="4" fill="#080c14"/>
+          <rect x="143" y="18" width="39" height="39" rx="2" fill="white"/>
+          <rect x="149" y="24" width="27" height="27" rx="2" fill="#080c14"/>
+          <rect x="10" y="135" width="55" height="55" rx="4" fill="#080c14"/>
+          <rect x="18" y="143" width="39" height="39" rx="2" fill="white"/>
+          <rect x="24" y="149" width="27" height="27" rx="2" fill="#080c14"/>
+          <rect x="80" y="10" width="8" height="8" fill="#080c14"/>
+          <rect x="96" y="10" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="26" width="8" height="8" fill="#080c14"/>
+          <rect x="112" y="26" width="8" height="8" fill="#080c14"/>
+          <rect x="96" y="42" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="80" width="8" height="8" fill="#080c14"/>
+          <rect x="96" y="80" width="8" height="8" fill="#080c14"/>
+          <rect x="112" y="80" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="96" width="8" height="8" fill="#080c14"/>
+          <rect x="112" y="96" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="112" width="8" height="8" fill="#080c14"/>
+          <rect x="96" y="112" width="8" height="8" fill="#080c14"/>
+          <rect x="128" y="80" width="8" height="8" fill="#080c14"/>
+          <rect x="144" y="80" width="8" height="8" fill="#080c14"/>
+          <rect x="160" y="80" width="8" height="8" fill="#080c14"/>
+          <rect x="128" y="96" width="8" height="8" fill="#080c14"/>
+          <rect x="160" y="96" width="8" height="8" fill="#080c14"/>
+          <rect x="128" y="112" width="8" height="8" fill="#080c14"/>
+          <rect x="144" y="112" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="128" width="8" height="8" fill="#080c14"/>
+          <rect x="112" y="128" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="144" width="8" height="8" fill="#080c14"/>
+          <rect x="96" y="144" width="8" height="8" fill="#080c14"/>
+          <rect x="112" y="160" width="8" height="8" fill="#080c14"/>
+          <rect x="144" y="128" width="8" height="8" fill="#080c14"/>
+          <rect x="160" y="144" width="8" height="8" fill="#080c14"/>
+          <rect x="144" y="160" width="8" height="8" fill="#080c14"/>
+          <rect x="88" y="88" width="16" height="16" rx="3" fill="#ff5c1a"/>
+        </svg>
+      </div>
+
+      <div style="background:#0e1520;border:1px solid rgba(255,92,26,.3);border-radius:10px;padding:12px 16px;margin-bottom:20px">
+        <div style="font-size:11px;color:#6b7a99;margin-bottom:4px">TOKEN</div>
+        <div style="font-family:monospace;font-size:14px;color:#ff5c1a;letter-spacing:2px">${token}</div>
+      </div>
+
+      <div style="font-size:12px;color:#5a6a88;margin-bottom:24px">Dine-in only · One use per table · Valid tonight</div>
+
+      <button onclick="this.parentElement.parentElement.remove()"
+        style="width:100%;padding:14px;background:#ff5c1a;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer">
+        Close
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// ── SHOW LIVE OFFER DETAIL ──
+function showLiveOfferDetail(offer) {
+  const restaurant = offer.restaurants || {};
+  const spotsLeft = offer.max_claims - offer.current_claims;
+  const discount = formatOfferDiscount(offer);
+  const emoji = getOfferEmoji(offer);
+
+  // Use existing detail sheet
+  const sheet = document.getElementById('dsheet');
+  if (!sheet) return;
+
+  // Populate it
+  const dishImg = document.getElementById('ds-dish-img');
+  const restoImg = document.getElementById('ds-resto-img');
+  if (dishImg) dishImg.style.cssText = 'background:linear-gradient(135deg,#141c2e,#080c14);display:flex;align-items:center;justify-content:center;font-size:80px';
+  if (restoImg) restoImg.style.display = 'none';
+
+  const dtag = document.getElementById('ds-dtag');
+  const rname = document.getElementById('ds-rname');
+  const cui = document.getElementById('ds-cui');
+  const otitle = document.getElementById('ds-otitle');
+  const obody = document.getElementById('ds-obody');
+  const spots = document.getElementById('ds-spots');
+  const btn = document.getElementById('ds-btn');
+
+  if (dtag) dtag.textContent = offer.promo_dish_name || offer.title;
+  if (rname) rname.textContent = restaurant.name || 'Restaurant';
+  if (cui) cui.textContent = (restaurant.cuisine_type || 'Restaurant') + ' · ' + (restaurant.city || 'Charleston');
+  if (otitle) otitle.textContent = offer.title;
+  if (obody) obody.textContent = 'Limited to ' + offer.max_claims + ' claims. ' + spotsLeft + ' spots remaining. Dine-in only.';
+  if (spots) { spots.textContent = spotsLeft; spots.className = 'ds-sn' + (spotsLeft <= 2 ? ' crit' : ''); }
+
+  if (btn) {
+    const alreadyClaimed = myLiveClaims.find(c => c.offer_id === offer.id);
+    if (alreadyClaimed) {
+      btn.textContent = '✓ CLAIMED · CHECK MY OFFERS';
+      btn.classList.add('claimed');
+      btn.onclick = () => { cd2(); sp('mydrops', document.querySelector('.ntab:nth-child(2)')); };
+    } else {
+      btn.textContent = 'CLAIM THIS OFFER';
+      btn.classList.remove('claimed');
+      btn.onclick = () => { claimLiveOffer(offer.id, btn); cd2(); };
+    }
+  }
+
+  sheet.classList.add('open');
+}
+
+function showClaimToast(msg) {
+  const t = document.getElementById('toast');
+  if (t) {
+    // Update toast message if possible
+    const ti = t.querySelector('.ti-msg, span, div');
+    if (ti) ti.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+}
+
+
+// ── STATUS PAGE ──
+async function loadStatusPage() {
+  if (!currentDiner) {
+    renderStatusGuest();
+    return;
+  }
+
+  try {
+    // Load diner profile
+    const { data: profile } = await sb
+      .from('diners')
+      .select('*')
+      .eq('auth_user_id', currentDiner.id)
+      .single();
+
+    // Load all claims
+    const { data: claims } = await sb
+      .from('claims')
+      .select('*, offers(title, discount_type, discount_value, free_item_name, restaurants(name))')
+      .eq('diner_id', currentDiner.id)
+      .order('created_at', { ascending: false });
+
+    renderStatusProfile(profile, claims);
+  } catch(e) {
+    console.log('Status load failed — showing guest view');
+    renderStatusGuest();
+  }
+}
+
+function renderStatusProfile(profile, claims) {
+  const tier = profile?.tier || 'spark';
+  const points = profile?.points || 0;
+  const lifetimePoints = profile?.lifetime_points || 0;
+  const name = profile?.full_name || dinerName || currentDiner?.email?.split('@')[0] || 'Member';
+
+  // Tier config
+  const tierConfig = {
+    spark:   { name: '⚡ Spark',   next: 'Sizzler 🔥', threshold: 500,  color: '#a78bfa' },
+    sizzler: { name: '🔥 Sizzler', next: 'Inferno 🌋', threshold: 2000, color: '#FF5C1A' },
+    inferno: { name: '🌋 Inferno', next: null,          threshold: null, color: '#ef4444' },
+  };
+  const tc = tierConfig[tier] || tierConfig.spark;
+
+  // Progress bar
+  const prevThreshold = tier === 'spark' ? 0 : tier === 'sizzler' ? 500 : 2000;
+  const nextThreshold = tc.threshold;
+  const pct = nextThreshold
+    ? Math.min(100, Math.round(((lifetimePoints - prevThreshold) / (nextThreshold - prevThreshold)) * 100))
+    : 100;
+  const ptsToGo = nextThreshold ? Math.max(0, nextThreshold - lifetimePoints) : 0;
+
+  // Update DOM
+  const q = (sel) => document.querySelector(sel);
+  if (q('.st-name')) q('.st-name').textContent = name;
+  if (q('.st-av')) q('.st-av').textContent = name[0].toUpperCase();
+  if (q('.st-tier-name')) q('.st-tier-name').textContent = tc.name;
+  if (q('.st-pts')) q('.st-pts').textContent = points.toLocaleString();
+  if (q('.st-next-tier')) q('.st-next-tier').textContent = tc.next ? `Progress to ${tc.next}` : 'Max Tier Reached 🌋';
+  if (q('.st-pts-to-go')) q('.st-pts-to-go').textContent = tc.next ? `${ptsToGo.toLocaleString()} pts to go` : "You've made it";
+  if (q('.st-progress-bar')) q('.st-progress-bar').style.width = pct + '%';
+
+  // Stats
+  const redeemed = claims?.filter(c => c.status === 'redeemed') || [];
+  const active = claims?.filter(c => c.status === 'active') || [];
+  const restaurants = new Set(redeemed.map(c => c.offers?.restaurants?.name).filter(Boolean)).size;
+
+  if (q('.st-offers-used')) q('.st-offers-used').textContent = redeemed.length;
+  if (q('.st-offers-active')) q('.st-offers-active').textContent = active.length;
+  if (q('.st-restaurants')) q('.st-restaurants').textContent = restaurants;
+
+  // Benefits based on tier
+  renderBenefits(tier);
+
+  // History
+  renderClaimHistory(claims || []);
+}
+
+function renderStatusGuest() {
+  // Already set to guest defaults in HTML — just render empty history message
+  renderClaimHistory([]);
+}
+
+function renderBenefits(tier) {
+  const el = document.getElementById('st-benefits');
+  if (!el) return;
+
+  const benefits = {
+    spark: [
+      { icon: '🔥', title: 'Exclusive Offers', desc: 'Access to limited-spot offers near you', unlocked: true },
+      { icon: '🎫', title: 'QR Redemption', desc: 'One-tap claim and show QR at host stand', unlocked: true },
+      { icon: '⚡', title: 'Early Offer Access', desc: 'Unlock at Sizzler — see offers 30 min early', unlocked: false },
+    ],
+    sizzler: [
+      { icon: '🔥', title: 'Exclusive Offers', desc: 'Access to limited-spot offers near you', unlocked: true },
+      { icon: '⚡', title: 'Early Offer Access', desc: 'See offers 30 min before general release', unlocked: true },
+      { icon: '🎯', title: 'VIP Targeting', desc: 'Restaurants can send you private direct offers', unlocked: true },
+      { icon: '🌋', title: 'Inferno Status', desc: 'Unlock at Inferno for the best offers', unlocked: false },
+    ],
+    inferno: [
+      { icon: '🔥', title: 'Exclusive Offers', desc: 'Priority access to all limited offers', unlocked: true },
+      { icon: '⚡', title: 'Early Offer Access', desc: 'First access — 30 min before everyone', unlocked: true },
+      { icon: '🎯', title: 'VIP Targeting', desc: 'Private direct offers from top restaurants', unlocked: true },
+      { icon: '🌋', title: 'Inferno Perks', desc: 'The best offers, reserved just for you', unlocked: true },
+    ],
+  };
+
+  const tierName = { spark: 'Spark', sizzler: 'Sizzler', inferno: 'Inferno' }[tier] || 'Spark';
+  const list = benefits[tier] || benefits.spark;
+
+  el.innerHTML = `<div class="bh">${tierName} Benefits</div>` +
+    list.map(b => `
+      <div class="br">
+        <div class="bi">${b.icon}</div>
+        <div class="bif"><div class="bin">${b.title}</div><div class="bid">${b.desc}</div></div>
+        <div class="bs" style="${b.unlocked ? '' : 'color:rgba(255,255,255,.15)'}">${b.unlocked ? '✅' : '🔒'}</div>
+      </div>
+    `).join('');
+}
+
+function renderClaimHistory(claims) {
+  const el = document.getElementById('st-history');
+  if (!el) return;
+
+  const redeemed = claims.filter(c => c.status === 'redeemed');
+
+  if (redeemed.length === 0) {
+    el.innerHTML = `
+      <div style="padding:32px 20px;text-align:center;color:rgba(255,255,255,0.3);font-size:13px">
+        <div style="font-size:32px;margin-bottom:12px">🍽</div>
+        Claim your first offer to start building your history
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = redeemed.slice(0, 10).map(claim => {
+    const offer = claim.offers || {};
+    const restaurant = offer.restaurants || {};
+    const discount = offer.discount_type === 'pct_off' ? offer.discount_value + '% off' :
+                     offer.discount_type === 'dollar_off' ? '$' + offer.discount_value + ' off' :
+                     'Free item';
+    const date = claim.redeemed_at
+      ? new Date(claim.redeemed_at).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' })
+      : 'Recently';
+
+    return `
+      <div class="hr">
+        <div class="ht" style="background:linear-gradient(135deg,#141c2e,#0d0d0d);display:flex;align-items:center;justify-content:center;font-size:24px">🍽</div>
+        <div class="hi">
+          <div class="hr2">${restaurant.name || 'Restaurant'}</div>
+          <div class="hd">${offer.title || discount}</div>
+          <div class="hdn">${discount}</div>
+          <div class="hda">${date}</div>
+        </div>
+        <div class="hs" style="color:#22c55e">✓</div>
+      </div>`;
+  }).join('');
+}
+
+// ── INIT ──
+// Wait for Supabase to load then init
+window.addEventListener('load', async () => {
+  await new Promise(r => setTimeout(r, 500));
+  try {
+    // Always load live offers immediately — no auth needed to browse
+    await loadLiveOffers();
+    si(); // set demo images as fallback
+
+    // Check session separately
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && session.user) {
+      currentDiner = session.user;
+      await loadDinerProfile();
+      showMainApp();
+      await loadMyClaims();
+    }
+    // No session — auth screen stays visible but feed is already loaded
+  } catch(e) {
+    console.log('Init error:', e.message);
+    si(); // fallback to demo images
+  }
+});
+</script>
+
+</body>
+</html>

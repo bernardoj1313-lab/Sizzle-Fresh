@@ -1,0 +1,12 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/restaurants", "dest": "/restaurants.html" },
+    { "src": "/diners", "dest": "/diners.html" },
+    { "src": "/portal", "dest": "/portal.html" },
+    { "src": "/app", "dest": "/app.html" },
+    { "src": "/redeem", "dest": "/redeem.html" }
+  ]
+}
