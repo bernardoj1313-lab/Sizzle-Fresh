@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sizzle — Demand More</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #0a0a0a;
+  color: #fff;
+}
+
+/* ── LOGO ── */
+.logo-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px;
+  pointer-events: none;
+}
+
+.wordmark {
+  display: flex; align-items: center; gap: 10px;
+  pointer-events: all;
+  text-decoration: none;
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+}
+
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px; letter-spacing: 3px; color: #fff; line-height: 1;
+}
+.logo-text .dot { color: #ff5c1a; }
+
+/* ── SPLIT CONTAINER ── */
+.split {
+  display: flex;
+  width: 100vw; height: 100vh;
+  position: relative;
+}
+
+/* ── EACH SIDE ── */
+.side {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: flex 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Hover expansion */
+.split:has(.side-restaurant:hover) .side-restaurant { flex: 1.4; }
+.split:has(.side-restaurant:hover) .side-diner { flex: 0.6; }
+.split:has(.side-diner:hover) .side-diner { flex: 1.4; }
+.split:has(.side-diner:hover) .side-restaurant { flex: 0.6; }
+
+/* ── RESTAURANT SIDE — dark, serious, moody ── */
+.side-restaurant {
+  background: #0a0a0a;
+}
+
+.side-restaurant .bg-layer {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(255,92,26,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(255,92,26,0.06) 0%, transparent 50%);
+  transition: opacity 0.4s;
+}
+.side-restaurant:hover .bg-layer { opacity: 1.5; }
+
+.side-restaurant .grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at 30% 50%, transparent 20%, black 80%);
+}
+
+/* ── DINER SIDE — warm, inviting, appetizing ── */
+.side-diner {
+  background: #0f0a06;
+}
+
+.side-diner .bg-layer {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 50%, rgba(255,140,50,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(255,92,26,0.08) 0%, transparent 50%);
+  transition: opacity 0.4s;
+}
+.side-diner:hover .bg-layer { opacity: 1.5; }
+
+.side-diner .grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at 70% 50%, transparent 20%, black 80%);
+}
+
+/* ── DIVIDER ── */
+.divider {
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(255,92,26,0.3) 20%,
+    rgba(255,92,26,0.6) 50%,
+    rgba(255,92,26,0.3) 80%,
+    transparent 100%
+  );
+  z-index: 10;
+  pointer-events: none;
+  transition: left 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* divider OR badge */
+.or-badge {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  width: 44px; height: 44px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255,92,26,0.4);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+/* ── SIDE CONTENT ── */
+.side-content {
+  position: relative; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 60px 40px;
+  max-width: 420px;
+}
+
+.side-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  margin-bottom: 20px;
+  animation: fadeUp 0.7s ease both;
+}
+
+.side-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(40px, 4.5vw, 64px);
+  line-height: 0.92; letter-spacing: 1px;
+  color: #fff; margin-bottom: 18px;
+  animation: fadeUp 0.7s ease 0.1s both;
+}
+.side-headline .accent { color: #ff5c1a; }
+
+.side-desc {
+  font-size: 15px; font-weight: 300;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6; margin-bottom: 36px;
+  animation: fadeUp 0.7s ease 0.2s both;
+}
+.side-desc strong { color: rgba(255,255,255,0.75); font-weight:500; }
+
+/* CTA button */
+.side-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 32px; border-radius: 14px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; border: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s; text-decoration: none;
+  animation: fadeUp 0.7s ease 0.3s both;
+  letter-spacing: 0.2px;
+  position: relative; overflow: hidden;
+}
+
+.side-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+.side-btn:hover::after { transform: translateX(0); }
+
+.btn-restaurant {
+  background: #ff5c1a; color: #fff;
+}
+.btn-restaurant:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(255,92,26,0.4); }
+
+.btn-diner {
+  background: #fff; color: #1a1a1a;
+}
+.btn-diner:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(255,255,255,0.2); background: #ff5c1a; color: #fff; }
+
+/* feature pills */
+.side-features {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 36px; width: 100%;
+  animation: fadeUp 0.7s ease 0.25s both;
+}
+
+.feature-pill {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 13px; color: rgba(255,255,255,0.65);
+  text-align: left;
+  transition: all 0.2s;
+}
+.side-restaurant .feature-pill:hover {
+  background: rgba(255,92,26,0.1);
+  border-color: rgba(255,92,26,0.2);
+  color: rgba(255,255,255,0.85);
+}
+.side-diner .feature-pill {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.07);
+}
+.side-diner .feature-pill:hover {
+  background: rgba(255,140,50,0.1);
+  border-color: rgba(255,140,50,0.2);
+  color: rgba(255,255,255,0.85);
+}
+.fp-icon { font-size: 16px; flex-shrink: 0; }
+
+/* big decorative number */
+.side-bg-num {
+  position: absolute;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40vw; line-height: 1;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none; user-select: none;
+  letter-spacing: -5px;
+}
+.side-restaurant .side-bg-num { right: -5vw; top: 50%; transform: translateY(-50%); }
+.side-diner .side-bg-num { left: -5vw; top: 50%; transform: translateY(-50%); }
+
+/* grain */
+.grain {
+  position: fixed; inset: 0; z-index: 50;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* bottom tagline */
+.bottom-bar {
+  position: fixed; bottom: 28px; left: 0; right: 0;
+  display: flex; justify-content: center;
+  z-index: 100; pointer-events: none;
+}
+.tagline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px; letter-spacing: 4px;
+  color: rgba(255,255,255,0.18);
+}
+.tagline span { color: rgba(255,92,26,0.5); }
+
+/* page transition overlay */
+.transition-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: #ff5c1a;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.transition-overlay.animate-out {
+  animation: slideOut 0.5s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+@keyframes slideOut {
+  0% { transform: scaleX(0); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: left; }
+  50.01% { transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  html, body { overflow: auto; }
+  .split { flex-direction: column; height: auto; min-height: 100vh; }
+  .side { min-height: 50vh; }
+  .divider { left: 0; right: 0; top: 50%; bottom: auto; width: auto; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,92,26,0.5), transparent); }
+  .or-badge { left: 50%; top: 50%; }
+  .side-bg-num { font-size: 60vw; }
+}
+.wordmark { display:flex; align-items:center; text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<!-- LOGO -->
+<div class="logo-bar">
+  <a href="/" class="wordmark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 76" style="height:38px;width:auto;display:block">
+  <text x="140" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-1">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+  <line x1="20" y1="62" x2="260" y2="62" stroke="#FF5C1A" stroke-width="1.2"/>
+  <text x="140" y="74" font-family="system-ui,sans-serif" font-size="8" fill="#6B7A99" text-anchor="middle" letter-spacing="4">DEMAND MORE</text>
+</svg></a>
+</div>
+
+<!-- SPLIT -->
+<div class="split" id="split">
+
+  <!-- RESTAURANT SIDE -->
+  <div class="side side-restaurant" onclick="navigate('/restaurants')">
+    <div class="bg-layer"></div>
+    <div class="grid-overlay"></div>
+    <div class="side-bg-num">R</div>
+
+    <div class="side-content">
+      <div class="side-eyebrow">For Restaurant Operators</div>
+      <div class="side-headline">
+        Fill Your<br>Tables<span class="accent">.</span><br>Keep Every<br>Dollar<span class="accent">.</span>
+      </div>
+      <div class="side-desc">
+        AI-driven demand tools that put <strong>you in control</strong> — not the delivery apps.
+      </div>
+
+      <div class="side-features">
+        <div class="feature-pill"><span class="fp-icon">🧠</span>AI demand prediction & offer suggestions</div>
+        <div class="feature-pill"><span class="fp-icon">💰</span>Zero commission — flat monthly subscription</div>
+        <div class="feature-pill"><span class="fp-icon">🎯</span>Proprietary audience of local high-value diners</div>
+      </div>
+
+      <button class="side-btn btn-restaurant">
+        I'm a Restaurant Operator →
+      </button>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider">
+    <div class="or-badge">OR</div>
+  </div>
+
+  <!-- DINER SIDE -->
+  <div class="side side-diner" onclick="navigate('/app')">
+    <div class="bg-layer"></div>
+    <div class="grid-overlay"></div>
+    <div class="side-bg-num">D</div>
+
+    <div class="side-content">
+      <div class="side-eyebrow">For Diners</div>
+      <div class="side-headline">
+        Deals<br>You<span class="accent"> </span>Actually<br>Want<span class="accent">.</span>
+      </div>
+      <div class="side-desc">
+        Exclusive offers from the best restaurants near you. <strong>Limited spots.</strong> Claim before they're gone.
+      </div>
+
+      <div class="side-features">
+        <div class="feature-pill"><span class="fp-icon">🔥</span>Live offers — real restaurants, right now</div>
+        <div class="feature-pill"><span class="fp-icon">⚡</span>Claim in one tap, show up and enjoy</div>
+        <div class="feature-pill"><span class="fp-icon">🌋</span>Earn status, unlock the best offers</div>
+      </div>
+
+      <button class="side-btn btn-diner">
+        I Love a Great Deal →
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM TAGLINE -->
+<div class="bottom-bar">
+  <div class="tagline">SIZZLE <span>·</span> DEMAND MORE <span>·</span> CHARLESTON SC</div>
+</div>
+
+<!-- TRANSITION OVERLAY -->
+<div class="transition-overlay" id="overlay"></div>
+
+<script>
+function navigate(url) {
+  const overlay = document.getElementById('overlay');
+  overlay.classList.add('animate-out');
+  setTimeout(() => {
+    window.location.href = url;
+  }, 250);
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === '1') navigate('/restaurants');
+  if (e.key === 'ArrowRight' || e.key === '2') navigate('/app');
+});
+</script>
+</body>
+</html>
