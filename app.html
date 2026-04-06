@@ -1235,11 +1235,38 @@ function renderClaimHistory(claims) {
 window.addEventListener('load', async () => {
   await new Promise(r => setTimeout(r, 500));
   try {
-    // Always load live offers immediately — no auth needed to browse
-    await loadLiveOffers();
-    si(); // set demo images as fallback
+    const { data: offers, error } = await sb
+      .from('offers')
+      .select('*, restaurants(name, address, cuisine_type, city)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
 
-    // Check session separately
+    console.log('Offers loaded:', offers, error);
+
+    const pill = document.querySelector('.loc-pill');
+
+    if (error) {
+      if (pill) pill.textContent = '❌ DB Error: ' + error.message;
+    } else if (!offers || offers.length === 0) {
+      if (pill) pill.textContent = '⚠️ No active offers found';
+    } else {
+      if (pill) pill.textContent = '🔥 ' + offers.length + ' live offer(s)';
+      liveOffers = offers;
+      // Wait for DOM then render
+      const tryRender = () => {
+        const container = document.querySelector('.drops');
+        if (container) {
+          renderLiveDrops(offers);
+          updateDropCount(offers.length);
+        } else {
+          setTimeout(tryRender, 300);
+        }
+      };
+      tryRender();
+    }
+
+    si();
+
     const { data: { session } } = await sb.auth.getSession();
     if (session && session.user) {
       currentDiner = session.user;
@@ -1247,10 +1274,9 @@ window.addEventListener('load', async () => {
       showMainApp();
       await loadMyClaims();
     }
-    // No session — auth screen stays visible but feed is already loaded
   } catch(e) {
     console.log('Init error:', e.message);
-    si(); // fallback to demo images
+    si();
   }
 });
 </script>
