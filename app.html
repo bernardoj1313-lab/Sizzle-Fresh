@@ -251,8 +251,7 @@ body{background:#0a0a0a;display:flex;justify-content:center;align-items:center;m
 .ds-cta.claimed{background:#22c55e}
 
 /* TOAST */
-.toast{position:absolute;top:14px;left:14px;right:14px;z-index:200;background:#1a1a1a;border:1px solid rgba(34,197,94,.25);border-radius:16px;padding:13px 15px;display:none;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
-.toast.show{display:flex;animation:td .25s ease}
+.toast{position:absolute;top:14px;left:14px;right:14px;z-index:200;background:#ff5c1a;border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:13px 15px;display:none;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(255,92,26,.4)}.toast .tt{color:#fff!important}.toast .ts{color:rgba(255,255,255,.8)!important}.toast.show{display:flex;animation:td .25s ease}
 @keyframes td{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .ti2{font-size:20px}
 .tb2{flex:1}
@@ -924,15 +923,15 @@ async function claimLiveOffer(offerId, btn) {
       console.log('Claim insert blocked by RLS — showing success anyway');
       btn.textContent = '✓ Claimed';
       btn.classList.add('claimed');
-      showClaimToast('🔥 Offer claimed! Check My Offers for your QR code.');
-      return;
+showClaimToast('🔥 Offer claimed! Check My Offers for your QR code.');
+sp('drops', document.querySelector('[onclick*="drops"]'));      return;
     }
 
     myLiveClaims.push(claim);
     btn.textContent = '✓ Claimed';
     btn.classList.add('claimed');
-    showClaimToast('🔥 Offer claimed! Check My Offers for your QR code.');
-    await loadMyClaims();
+showClaimToast('🔥 Offer claimed! Check My Offers for your QR code.');
+sp('drops', document.querySelector('[onclick*="drops"]'));    await loadMyClaims();
 
   } catch(e) {
     btn.textContent = '✓ Claimed';
