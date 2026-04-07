@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sizzle</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#080808;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'DM Sans',sans-serif;padding:20px}
+.phone{width:390px;height:844px;background:#0d0d0d;border-radius:50px;overflow:hidden;position:relative;box-shadow:0 0 0 10px #0a0a0a,0 0 0 12px #222,0 50px 100px rgba(0,0,0,0.8);display:flex;flex-direction:column}
+.sbar{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;flex-shrink:0;position:relative;z-index:10}
+.sbar-t{font-size:15px;font-weight:600;color:#fff}
+.sbar-i{display:flex;gap:5px;align-items:center;font-size:12px;color:rgba(255,255,255,0.7)}
+.screen{flex:1;overflow:hidden;position:relative;background:#0d0d0d}
+.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;background:#0d0d0d;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pg::-webkit-scrollbar{display:none}
+.pg.active{display:block;animation:fu .22s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.bnav{height:80px;background:#111;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-around;padding:0 8px 14px;flex-shrink:0;z-index:20}
+.ntab{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:10px 18px;border-radius:16px;transition:all .2s;flex:1}
+.ntab.active{background:rgba(255,92,26,0.1)}
+.ntab-ic{font-size:20px;transition:transform .2s}
+.ntab.active .ntab-ic{transform:scale(1.15)}
+.ntab-lb{font-size:10px;font-weight:500;color:rgba(255,255,255,0.3);letter-spacing:.5px;text-transform:uppercase}
+.ntab.active .ntab-lb{color:#ff5c1a;font-weight:700}
+
+/* AUTH */
+.auth-pg{position:absolute;inset:0;background:#0d0d0d;z-index:9999;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:center;justify-content:flex-start}
+.auth-pg.hidden{display:none}
+.auth-top{padding:32px 24px 20px;display:flex;flex-direction:column;align-items:center;width:100%}
+.auth-hero{font-family:Georgia,serif;font-size:26px;font-weight:700;color:#fff;text-align:center;line-height:1.25;margin-bottom:8px}
+.auth-sub{font-size:13px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.5;margin-bottom:28px;padding:0 8px}
+.auth-tabs{display:flex;background:rgba(255,255,255,0.06);border-radius:12px;padding:3px;margin:0 24px 20px;width:calc(100% - 48px)}
+.auth-tab{flex:1;text-align:center;padding:9px;border-radius:10px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.4);cursor:pointer;transition:all .15s}
+.auth-tab.active{background:#ff5c1a;color:#fff}
+.auth-form{padding:0 24px;width:100%}
+.auth-fg{margin-bottom:14px}
+.auth-fl{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;display:block}
+.auth-fi{width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.auth-fi:focus{border-color:#ff5c1a}
+.auth-fi::placeholder{color:rgba(255,255,255,0.25)}
+.auth-btn{width:100%;padding:15px;background:#ff5c1a;color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;transition:all .15s}
+.auth-btn:active{background:#e04a0c;transform:scale(0.98)}
+.auth-err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:12px;display:none}
+.auth-err.show{display:block}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:16px 24px;font-size:11px;color:rgba(255,255,255,0.25);width:calc(100%-48px)}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.auth-guest{margin:0 24px 32px;padding:14px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;font-size:13px;color:rgba(255,255,255,0.5);cursor:pointer;width:calc(100% - 48px)}
+.auth-guest:active{border-color:rgba(255,255,255,0.25)}
+.auth-guest span{color:#ff5c1a;font-weight:600}
+
+/* DISCOVER TOP BAR */
+.dtbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;position:sticky;top:0;z-index:15;background:linear-gradient(to bottom,#0d0d0d 80%,transparent)}
+.logo svg{display:block}
+.dtr{display:flex;align-items:center;gap:10px}
+.loc-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.7);font-weight:500}
+.u-av{width:32px;height:32px;background:linear-gradient(135deg,#ff5c1a,#ff8c42);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer}
+
+/* HERO OFFER */
+.hero{position:relative;margin:0 16px 4px;border-radius:24px;overflow:hidden;cursor:pointer;height:340px;background:#111}
+.hero-img-wrap{width:100%;height:100%;position:absolute;inset:0;background:linear-gradient(135deg,#1a0a04,#0a0a14)}
+.hero-emoji{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:80px;opacity:0.7}
+.hero-grad{position:absolute;inset:0;background:linear-gradient(160deg,rgba(13,13,13,0.1) 0%,transparent 35%,rgba(13,13,13,0.85) 65%,#0d0d0d 100%)}
+.live-b{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:6px;background:#ff5c1a;border-radius:6px;padding:5px 11px;font-size:10px;font-weight:800;color:#fff;letter-spacing:1.5px;text-transform:uppercase;z-index:5}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:lp 1s infinite}
+@keyframes lp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero-c{position:absolute;bottom:0;left:0;right:0;padding:0 18px 20px;z-index:5}
+.hero-cui{font-size:10px;color:#ff5c1a;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.hero-rest{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:.95;color:#fff;letter-spacing:1px;margin-bottom:10px}
+.hero-op-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.op-pill{background:#ff5c1a;color:#fff;font-size:12px;font-weight:800;padding:5px 12px;border-radius:7px}
+.op-desc{font-size:12px;color:rgba(255,255,255,0.55)}
+.hero-ar{display:flex;align-items:flex-end;justify-content:space-between}
+.scar-n{font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:1;color:#ff5c1a}
+.scar-l{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.hero-btn{background:#fff;color:#0d0d0d;border:none;border-radius:14px;padding:13px 22px;font-size:14px;font-weight:800;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.hero-btn:hover{background:#ff5c1a;color:#fff}
+.hero-btn.claimed{background:#22c55e;color:#fff}
+.hbar{height:3px;background:rgba(255,255,255,0.06);margin:0 16px 4px;border-radius:2px;overflow:hidden}
+.hbar-f{height:100%;background:#ff5c1a;border-radius:2px}
+
+/* SECTION LABELS */
+.sec-lbl{display:flex;align-items:baseline;justify-content:space-between;padding:18px 20px 10px}
+.sec-n{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:#fff}
+.sec-h{font-size:11px;color:rgba(255,255,255,0.25)}
+
+/* DROP CARDS */
+.drops{padding:0 16px 20px;display:flex;flex-direction:column;gap:14px}
+.dc{border-radius:20px;overflow:hidden;cursor:pointer;background:#161616;border:1px solid rgba(255,255,255,0.06);transition:transform .2s,border-color .2s}
+.dc:hover{transform:translateY(-2px);border-color:rgba(255,92,26,.25)}
+.dc.crit{border-color:rgba(239,68,68,.35)}
+.dc-img{height:140px;position:relative;background:linear-gradient(135deg,#141c2e,#080c14);display:flex;align-items:center;justify-content:center;font-size:56px}
+.dc-img-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(22,22,22,.95) 100%)}
+.dc-img-rest{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-radius:6px;padding:3px 8px;font-size:9px;color:rgba(255,255,255,.5)}
+.dc-img-tag{position:absolute;bottom:8px;left:8px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;letter-spacing:.5px}
+.dc-tag-pct{background:#ff5c1a;color:#fff}
+.dc-tag-free{background:#22c55e;color:#fff}
+.dc-tag-dol{background:#fff;color:#0d0d0d}
+.dc-tag-crit{background:#ef4444;color:#fff}
+.dc-spots{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:4px}
+.dc-sn{font-family:'Bebas Neue',sans-serif;font-size:18px;line-height:1;color:#ff5c1a}
+.dc-sn.crit{color:#ef4444}
+.dc-sl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px}
+.dc-body{padding:12px 14px 14px}
+.dc-rest{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px;color:#fff;line-height:1}
+.dc-dist{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.dc-deal{font-size:13px;color:rgba(255,255,255,.7);font-weight:500;margin:6px 0 8px}
+.dc-foot{display:flex;align-items:center;justify-content:space-between}
+.bar-w{flex:1;margin-right:12px}
+.bar-bg{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.bar-f{height:100%;border-radius:2px;background:#ff5c1a}
+.bar-f.low{background:#ef4444}
+.bar-t{font-size:10px;color:rgba(255,255,255,.25);margin-top:4px}
+.cbtn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:10px;padding:9px 18px;font-size:12px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.cbtn:hover{background:#ff5c1a;border-color:#ff5c1a}
+.cbtn.claimed{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:#22c55e}
+
+/* MY DROPS */
+.mhdr{padding:20px 20px 0}
+.mttl{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:#fff;margin-bottom:4px}
+.mttl span{color:#ff5c1a}
+.msub{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:16px}
+.tbar{display:flex;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:16px}
+.ti{flex:1;text-align:center;padding:11px 6px;font-size:11px;font-weight:700;cursor:pointer;color:rgba(255,255,255,.28);transition:all .15s;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.ti.active{color:#ff5c1a;border-bottom-color:#ff5c1a}
+.mlist{padding:0 16px 100px;display:flex;flex-direction:column;gap:12px}
+.empty-state{padding:40px 20px;text-align:center;color:rgba(255,255,255,0.3)}
+.empty-state .es-icon{font-size:40px;margin-bottom:12px}
+.empty-state .es-txt{font-size:13px;line-height:1.6}
+.empty-state .es-btn{margin-top:16px;display:inline-block;padding:10px 24px;background:#ff5c1a;color:#fff;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* CLAIM CARD */
+.mc{background:#161616;border-radius:18px;overflow:hidden;border:1px solid rgba(255,92,26,.22)}
+.mc.redeemed{border-color:rgba(34,197,94,.18)}
+.mc.expired{opacity:.45;border-color:rgba(255,255,255,.06)}
+.mc-top{display:flex;align-items:stretch}
+.mc-img{width:88px;height:88px;background:linear-gradient(135deg,#1a0e06,#080c14);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0}
+.mc-info{flex:1;padding:12px 14px;min-width:0}
+.mc-rest{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:.5px;margin-bottom:2px}
+.mc-deal{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:3px}
+.mc-meta{font-size:10px;color:rgba(255,255,255,.22)}
+.mc-status-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.mbadge{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:6px}
+.mb-live{background:rgba(255,92,26,.12);color:#ff5c1a;border:1px solid rgba(255,92,26,.25)}
+.mb-used{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
+.mb-gone{background:rgba(255,255,255,.04);color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.07)}
+.mc-qr{border-top:1px dashed rgba(255,255,255,.07);display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:background .15s}
+.mc-qr:hover{background:rgba(255,92,26,.05)}
+.qr-icon{width:54px;height:54px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#0d0d0d;flex-shrink:0}
+.qr-info{flex:1}
+.qr-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.qr-sub{font-size:11px;color:rgba(255,255,255,.3);line-height:1.4}
+.qr-arrow{font-size:18px;color:#ff5c1a}
+
+/* STATUS PAGE */
+.sph{padding-bottom:100px}
+.shero{padding:24px 20px 20px;background:#111;position:relative;overflow:hidden;border-bottom:1px solid rgba(255,92,26,.1)}
+.shero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 10%,rgba(255,92,26,.12) 0%,transparent 55%)}
+.st-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;position:relative}
+.st-av{width:46px;height:46px;background:linear-gradient(135deg,#ff5c1a,#ff8c42);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.st-name-wrap{flex:1;padding-left:12px}
+.st-name{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:#fff;letter-spacing:.5px}
+.st-since{font-size:11px;color:rgba(255,255,255,.22);margin-top:3px}
+.tier-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,92,26,.12);border:1px solid rgba(255,92,26,.25);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;color:#ff5c1a}
+.tc-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden}
+.tc-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ff5c1a,transparent)}
+.tc-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.tc-pts-wrap{text-align:right}
+.tc-pts-lbl{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.tc-pts-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;line-height:1}
+.tc-next{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:6px}
+.tc-ptogo{font-size:11px;color:#ff5c1a;margin-bottom:8px}
+.tc-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.tc-bar-f{height:100%;background:linear-gradient(90deg,#ff5c1a,#ffd700);border-radius:3px}
+.sstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:16px 20px 0}
+.ss{background:#161616;border-radius:14px;padding:14px 10px;text-align:center;border:1px solid rgba(255,255,255,.05)}
+.ssv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#fff;line-height:1}
+.ssv.o{color:#ff5c1a}
+.ssv.g{color:#22c55e}
+.ssl{font-size:9px;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.sec-block{padding:18px 20px 0}
+.sec-block-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:#fff;margin-bottom:10px}
+.benefit-row{display:flex;align-items:center;gap:12px;background:#161616;border-radius:14px;padding:12px 14px;margin-bottom:8px;border:1px solid rgba(255,255,255,.04)}
+.benefit-icon{font-size:18px}
+.benefit-info{flex:1}
+.benefit-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
+.benefit-desc{font-size:11px;color:rgba(255,255,255,.28);margin-top:1px}
+.history-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.history-row:last-child{border-bottom:none}
+.history-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#141c2e,#0d0d0d);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.history-info{flex:1}
+.history-rest{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px}
+.history-deal{font-size:11px;color:rgba(255,255,255,.35)}
+.history-date{font-size:10px;color:rgba(255,255,255,.2);margin-top:1px}
+.history-saved{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#22c55e}
+
+/* TOAST */
+.toast{position:absolute;top:14px;left:14px;right:14px;z-index:500;background:#ff5c1a;border-radius:16px;padding:13px 15px;display:none;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(255,92,26,.4)}
+.toast.show{display:flex;animation:td .25s ease}
+@keyframes td{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.toast-icon{font-size:20px}
+.toast-body{flex:1}
+.toast-title{font-family:'Bebas Neue',sans-serif;font-size:17px;color:#fff;letter-spacing:.5px}
+.toast-sub{font-size:11px;color:rgba(255,255,255,.8);margin-top:1px}
+.toast-action{font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,.2);padding:5px 10px;border-radius:7px;cursor:pointer;white-space:nowrap}
+
+/* QR FULL SCREEN */
+.qr-screen{position:absolute;inset:0;background:#080c14;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.qr-screen.open{display:flex;animation:fu .2s ease}
+.qr-screen-close{position:absolute;top:20px;right:20px;width:34px;height:34px;background:rgba(255,255,255,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.6);cursor:pointer}
+.qr-heading{font-size:12px;color:#6b7a99;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;text-align:center}
+.qr-rest-name{font-family:Georgia,serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center}
+.qr-discount{font-size:14px;color:#ff5c1a;margin-bottom:24px;text-align:center}
+.qr-box{background:#fff;border-radius:16px;padding:20px;display:inline-block;margin-bottom:16px}
+.qr-token-box{background:#0e1520;border:1px solid rgba(255,92,26,.3);border-radius:10px;padding:12px 20px;margin-bottom:20px;text-align:center}
+.qr-token-lbl{font-size:10px;color:#6b7a99;letter-spacing:1px;margin-bottom:4px}
+.qr-token-val{font-family:monospace;font-size:15px;color:#ff5c1a;letter-spacing:2px}
+.qr-terms{font-size:12px;color:#5a6a88;margin-bottom:24px;text-align:center}
+.qr-close-btn{width:100%;max-width:320px;padding:14px;background:#ff5c1a;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="sbar"><div class="sbar-t">9:41</div><div class="sbar-i"><span>▲▲▲</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="screen">
+
+    <!-- ── AUTH SCREEN ── -->
+    <div class="auth-pg" id="authPg">
+      <div class="auth-top">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" style="height:28px;width:auto;display:block;margin-bottom:24px">
+          <text x="100" y="34" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+          <line x1="10" y1="41" x2="190" y2="41" stroke="#FF5C1A" stroke-width="1"/>
+          <text x="100" y="48" font-family="system-ui,sans-serif" font-size="7" fill="#6B7A99" text-anchor="middle" letter-spacing="3">DEMAND MORE</text>
+        </svg>
+        <div class="auth-hero">Exclusive drops from<br>the best tables near you.</div>
+        <div class="auth-sub">Claim offers, track your status, and unlock better deals the more you show up.</div>
+      </div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
+        <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+      </div>
+
+      <div id="form-signin" class="auth-form">
+        <div class="auth-err" id="err-signin"></div>
+        <div class="auth-fg"><span class="auth-fl">Email</span><input class="auth-fi" id="si-email" type="email" placeholder="you@email.com"></div>
+        <div class="auth-fg"><span class="auth-fl">Password</span><input class="auth-fi" id="si-pass" type="password" placeholder="••••••••"></div>
+        <button class="auth-btn" onclick="doSignIn()">Sign In →</button>
+      </div>
+
+      <div id="form-signup" class="auth-form" style="display:none">
+        <div class="auth-err" id="err-signup"></div>
+        <div class="auth-fg"><span class="auth-fl">Your Name</span><input class="auth-fi" id="su-name" type="text" placeholder="First Last"></div>
+        <div class="auth-fg"><span class="auth-fl">Email</span><input class="auth-fi" id="su-email" type="email" placeholder="you@email.com"></div>
+        <div class="auth-fg"><span class="auth-fl">Password</span><input class="auth-fi" id="su-pass" type="password" placeholder="Min. 6 characters"></div>
+        <button class="auth-btn" onclick="doSignUp()">Create Account →</button>
+      </div>
+
+      <div class="auth-divider">or</div>
+      <div class="auth-guest" onclick="doGuest()">Continue as guest · <span>Explore offers</span></div>
+    </div>
+
+    <!-- ── TOAST ── -->
+    <div class="toast" id="toast">
+      <div class="toast-icon">🔥</div>
+      <div class="toast-body">
+        <div class="toast-title" id="toast-title">Offer Claimed!</div>
+        <div class="toast-sub" id="toast-sub">Check My Drops for your QR code</div>
+      </div>
+      <div class="toast-action" id="toast-action" onclick="goToDrops()">View →</div>
+    </div>
+
+    <!-- ── QR SCREEN ── -->
+    <div class="qr-screen" id="qrScreen">
+      <div class="qr-screen-close" onclick="closeQR()">✕</div>
+      <div class="qr-heading">Show this to your server</div>
+      <div class="qr-rest-name" id="qr-rest"></div>
+      <div class="qr-discount" id="qr-discount"></div>
+      <div class="qr-box">
+        <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="55" height="55" rx="4" fill="#080c14"/><rect x="18" y="18" width="39" height="39" rx="2" fill="white"/><rect x="24" y="24" width="27" height="27" rx="2" fill="#080c14"/>
+          <rect x="135" y="10" width="55" height="55" rx="4" fill="#080c14"/><rect x="143" y="18" width="39" height="39" rx="2" fill="white"/><rect x="149" y="24" width="27" height="27" rx="2" fill="#080c14"/>
+          <rect x="10" y="135" width="55" height="55" rx="4" fill="#080c14"/><rect x="18" y="143" width="39" height="39" rx="2" fill="white"/><rect x="24" y="149" width="27" height="27" rx="2" fill="#080c14"/>
+          <rect x="80" y="10" width="8" height="8" fill="#080c14"/><rect x="96" y="10" width="8" height="8" fill="#080c14"/><rect x="80" y="26" width="8" height="8" fill="#080c14"/><rect x="112" y="26" width="8" height="8" fill="#080c14"/><rect x="96" y="42" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="80" width="8" height="8" fill="#080c14"/><rect x="96" y="80" width="8" height="8" fill="#080c14"/><rect x="112" y="80" width="8" height="8" fill="#080c14"/><rect x="80" y="96" width="8" height="8" fill="#080c14"/><rect x="112" y="96" width="8" height="8" fill="#080c14"/><rect x="80" y="112" width="8" height="8" fill="#080c14"/><rect x="96" y="112" width="8" height="8" fill="#080c14"/>
+          <rect x="128" y="80" width="8" height="8" fill="#080c14"/><rect x="144" y="80" width="8" height="8" fill="#080c14"/><rect x="160" y="80" width="8" height="8" fill="#080c14"/><rect x="128" y="96" width="8" height="8" fill="#080c14"/><rect x="160" y="96" width="8" height="8" fill="#080c14"/><rect x="128" y="112" width="8" height="8" fill="#080c14"/><rect x="144" y="112" width="8" height="8" fill="#080c14"/>
+          <rect x="80" y="128" width="8" height="8" fill="#080c14"/><rect x="112" y="128" width="8" height="8" fill="#080c14"/><rect x="80" y="144" width="8" height="8" fill="#080c14"/><rect x="96" y="144" width="8" height="8" fill="#080c14"/><rect x="112" y="160" width="8" height="8" fill="#080c14"/>
+          <rect x="144" y="128" width="8" height="8" fill="#080c14"/><rect x="160" y="144" width="8" height="8" fill="#080c14"/><rect x="144" y="160" width="8" height="8" fill="#080c14"/>
+          <rect x="88" y="88" width="16" height="16" rx="3" fill="#ff5c1a"/>
+        </svg>
+      </div>
+      <div class="qr-token-box"><div class="qr-token-lbl">TOKEN</div><div class="qr-token-val" id="qr-token"></div></div>
+      <div class="qr-terms">Dine-in only · One use per table · Valid tonight</div>
+      <button class="qr-close-btn" onclick="closeQR()">Close</button>
+    </div>
+
+    <!-- ── DISCOVER PAGE ── -->
+    <div class="pg active" id="pg-discover">
+      <div class="dtbar">
+        <div class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" style="height:28px;width:auto">
+            <text x="100" y="34" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-0.5">SIZZLE<tspan fill="#FF5C1A">.</tspan></text>
+            <line x1="10" y1="41" x2="190" y2="41" stroke="#FF5C1A" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="dtr">
+          <div class="loc-pill" id="loc-pill">📍 Charleston</div>
+          <div class="u-av" id="user-av">S</div>
+        </div>
+      </div>
+
+      <!-- Hero offer (first live offer or placeholder) -->
+      <div class="hero" id="hero-card">
+        <div class="hero-img-wrap"><div class="hero-emoji" id="hero-emoji">🍽</div></div>
+        <div class="hero-grad"></div>
+        <div class="live-b"><div class="live-dot"></div>Live Drop</div>
+        <div class="hero-c">
+          <div class="hero-cui" id="hero-cui">Loading...</div>
+          <div class="hero-rest" id="hero-title">Finding offers<br>near you...</div>
+          <div class="hero-op-row"><div class="op-pill" id="hero-badge">🔥</div><div class="op-desc" id="hero-meta"></div></div>
+          <div class="hero-ar">
+            <div><div class="scar-n" id="hero-spots">–</div><div class="scar-l">Spots Left</div></div>
+            <button class="hero-btn" id="hero-btn" onclick="heroClaimClick()">Claim Drop →</button>
+          </div>
+        </div>
+      </div>
+      <div class="hbar"><div class="hbar-f" id="hero-bar" style="width:0%"></div></div>
+
+      <div class="sec-lbl"><div class="sec-n">Tonight's Drops</div><div class="sec-h" id="drop-count-lbl"></div></div>
+      <div class="drops" id="drops-list">
+        <div style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.3)">
+          <div style="font-size:32px;margin-bottom:12px">🔥</div>
+          <div style="font-size:13px">Loading live offers...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MY DROPS PAGE ── -->
+    <div class="pg" id="pg-mydrops">
+      <div class="mhdr">
+        <div class="mttl">My <span>Drops</span></div>
+        <div class="msub" id="my-drops-sub">Your claimed offers</div>
+      </div>
+      <div class="tbar">
+        <div class="ti active" id="ti-active" onclick="switchTab2('active',this)">Active</div>
+        <div class="ti" id="ti-redeemed" onclick="switchTab2('redeemed',this)">Redeemed</div>
+        <div class="ti" id="ti-expired" onclick="switchTab2('expired',this)">Expired</div>
+      </div>
+      <div class="mlist" id="ml-active"></div>
+      <div class="mlist" id="ml-redeemed" style="display:none"></div>
+      <div class="mlist" id="ml-expired" style="display:none"></div>
+    </div>
+
+    <!-- ── STATUS PAGE ── -->
+    <div class="pg" id="pg-status">
+      <div class="sph">
+        <div class="shero">
+          <div class="st-top">
+            <div class="st-av" id="st-av">S</div>
+            <div class="st-name-wrap">
+              <div class="st-name" id="st-name">Guest</div>
+              <div class="st-since" id="st-since">Sizzle Member</div>
+            </div>
+            <div class="tier-badge" id="st-tier">⚡ Spark</div>
+          </div>
+          <div class="tc-wrap">
+            <div class="tc-row">
+              <div>
+                <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:4px" id="st-next-label">Progress to Sizzler 🔥</div>
+                <div style="font-size:13px;color:#ff5c1a;font-weight:600" id="st-pts-to-go">Sign in to track progress</div>
+              </div>
+              <div class="tc-pts-wrap">
+                <div class="tc-pts-lbl">Points</div>
+                <div class="tc-pts-val" id="st-pts">0</div>
+              </div>
+            </div>
+            <div class="tc-bar"><div class="tc-bar-f" id="st-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="sstats">
+          <div class="ss"><div class="ssv o" id="st-drops-used">0</div><div class="ssl">Drops Used</div></div>
+          <div class="ss"><div class="ssv g" id="st-saved">$0</div><div class="ssl">Saved</div></div>
+          <div class="ss"><div class="ssv" id="st-restaurants">0</div><div class="ssl">Restaurants</div></div>
+        </div>
+
+        <div class="sec-block" id="st-benefits-block">
+          <div class="sec-block-title">Spark Benefits</div>
+          <div class="benefit-row"><div class="benefit-icon">🔥</div><div class="benefit-info"><div class="benefit-name">Exclusive Drops</div><div class="benefit-desc">Access to limited-spot offers near you</div></div><div style="font-size:16px">✅</div></div>
+          <div class="benefit-row"><div class="benefit-icon">🎫</div><div class="benefit-info"><div class="benefit-name">QR Redemption</div><div class="benefit-desc">One-tap claim and show QR at the door</div></div><div style="font-size:16px">✅</div></div>
+          <div class="benefit-row"><div class="benefit-icon">⚡</div><div class="benefit-info"><div class="benefit-name">Early Access</div><div class="benefit-desc">Unlock at Sizzler — 30 min head start</div></div><div style="font-size:16px;color:rgba(255,255,255,.15)">🔒</div></div>
+        </div>
+
+        <div class="sec-block">
+          <div class="sec-block-title">Drop History</div>
+          <div id="st-history">
+            <div class="empty-state"><div class="es-icon">🍽</div><div class="es-txt">Claim your first offer to<br>start building your history</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .screen -->
+
+  <div class="bnav">
+    <div class="ntab active" id="nav-discover" onclick="navTo('discover',this)"><div class="ntab-ic">🔥</div><div class="ntab-lb">Discover</div></div>
+    <div class="ntab" id="nav-mydrops" onclick="navTo('mydrops',this)"><div class="ntab-ic">🎫</div><div class="ntab-lb">My Drops</div></div>
+    <div class="ntab" id="nav-status" onclick="navTo('status',this)"><div class="ntab-ic">⚡</div><div class="ntab-lb">Status</div></div>
+  </div>
+</div><!-- end .phone -->
+
+<script>
+const SB_URL = 'https://blppzhzoszmpqdwxhcbj.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJscHB6aHpvc3ptcHFkd3hoY2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODQ3MDIsImV4cCI6MjA4OTg2MDcwMn0.JxI9WLP_yPc6tyFCoLjUuELqph9rPCd6V9EnS0A8k5E';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+// ── STATE ──
+let currentUser = null;
+let dinerProfile = null;
+let liveOffers = [];
+let myClaims = [];
+let heroOfferId = null;
+
+// ── NAVIGATION ──
+function navTo(page, el) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pg-' + page).classList.add('active');
+  el.classList.add('active');
+  if (page === 'mydrops') renderMyDrops();
+  if (page === 'status') renderStatusPage();
+}
+
+function goToDrops() {
+  navTo('mydrops', document.getElementById('nav-mydrops'));
+  hideToast();
+}
+
+// ── AUTH TABS ──
+function switchTab(tab) {
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('form-signin').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+function switchTab2(tab, el) {
+  document.querySelectorAll('.ti').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ml-active').style.display = tab === 'active' ? 'flex' : 'none';
+  document.getElementById('ml-redeemed').style.display = tab === 'redeemed' ? 'flex' : 'none';
+  document.getElementById('ml-expired').style.display = tab === 'expired' ? 'flex' : 'none';
+}
+
+// ── AUTH ACTIONS ──
+async function doSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pass = document.getElementById('si-pass').value;
+  if (!email || !pass) return showErr('err-signin', 'Please fill in all fields');
+  const btn = document.querySelector('#form-signin .auth-btn');
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { showErr('err-signin', error.message); btn.textContent = 'Sign In →'; btn.disabled = false; return; }
+  currentUser = data.user;
+  await loadProfile();
+  enterApp();
+}
+
+async function doSignUp() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pass = document.getElementById('su-pass').value;
+  if (!name || !email || !pass) return showErr('err-signup', 'Please fill in all fields');
+  if (pass.length < 6) return showErr('err-signup', 'Password must be at least 6 characters');
+  const btn = document.querySelector('#form-signup .auth-btn');
+  btn.textContent = 'Creating account...'; btn.disabled = true;
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
+  if (error) { showErr('err-signup', error.message); btn.textContent = 'Create Account →'; btn.disabled = false; return; }
+  currentUser = data.user;
+  // Save profile
+  try {
+    await sb.from('diners').insert({ auth_user_id: currentUser.id, full_name: name, email, tier: 'spark', points: 0, lifetime_points: 0 });
+    dinerProfile = { full_name: name, tier: 'spark', points: 0, lifetime_points: 0 };
+  } catch(e) {}
+  updateAvatar(name);
+  enterApp();
+}
+
+async function doGuest() {
+  try {
+    const { data } = await sb.auth.signInAnonymously();
+    if (data?.user) currentUser = data.user;
+  } catch(e) {}
+  enterApp();
+}
+
+function enterApp() {
+  document.getElementById('authPg').classList.add('hidden');
+  loadOffers();
+  loadMyClaims();
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── LOAD PROFILE ──
+async function loadProfile() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('diners').select('*').eq('auth_user_id', currentUser.id).single();
+    if (data) { dinerProfile = data; updateAvatar(data.full_name); }
+  } catch(e) {}
+}
+
+function updateAvatar(name) {
+  const av = document.getElementById('user-av');
+  if (av && name) av.textContent = name[0].toUpperCase();
+}
+
+// ── LOAD LIVE OFFERS ──
+async function loadOffers() {
+  try {
+    const { data: offers, error } = await sb
+      .from('offers')
+      .select('*, restaurants(name, address, cuisine_type, city)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error || !offers || offers.length === 0) {
+      document.getElementById('loc-pill').textContent = '📍 Charleston';
+      document.getElementById('drops-list').innerHTML = `
+        <div style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.3)">
+          <div style="font-size:32px;margin-bottom:12px">🔥</div>
+          <div style="font-size:13px">No live offers right now.<br>Check back soon!</div>
+        </div>`;
+      return;
+    }
+
+    liveOffers = offers;
+    document.getElementById('loc-pill').textContent = '📍 Charleston · ' + offers.length + ' live';
+    document.getElementById('drop-count-lbl').textContent = offers.length + ' drop' + (offers.length > 1 ? 's' : '') + ' tonight';
+
+    renderHero(offers[0]);
+    renderDropCards(offers);
+  } catch(e) {
+    console.log('Offers load error:', e);
+  }
+}
+
+function offerEmoji(offer) {
+  const t = (offer.title || '').toLowerCase();
+  if (t.includes('oyster') || t.includes('seafood')) return '🦪';
+  if (t.includes('chicken')) return '🍗';
+  if (t.includes('burger') || t.includes('beef')) return '🍔';
+  if (t.includes('pizza')) return '🍕';
+  if (t.includes('sushi') || t.includes('fish')) return '🍣';
+  if (t.includes('cocktail') || t.includes('drink') || t.includes('bar')) return '🍹';
+  if (t.includes('taco')) return '🌮';
+  if (t.includes('brunch') || t.includes('breakfast')) return '🍳';
+  return '🍽';
+}
+
+function offerDiscount(offer) {
+  if (offer.discount_type === 'pct_off') return offer.discount_value + '% Off';
+  if (offer.discount_type === 'dollar_off') return '$' + offer.discount_value + ' Off';
+  if (offer.discount_type === 'free_item') return 'Free: ' + (offer.free_item_name || 'Item');
+  return offer.title;
+}
+
+function renderHero(offer) {
+  if (!offer) return;
+  heroOfferId = offer.id;
+  const r = offer.restaurants || {};
+  const spots = (offer.max_claims || 10) - (offer.current_claims || 0);
+  const pct = Math.round(((offer.current_claims || 0) / (offer.max_claims || 10)) * 100);
+  const disc = offerDiscount(offer);
+
+  document.getElementById('hero-emoji').textContent = offerEmoji(offer);
+  document.getElementById('hero-cui').textContent = (r.cuisine_type || 'Restaurant') + ' · ' + (r.name || 'Restaurant');
+  document.getElementById('hero-title').textContent = offer.title;
+  document.getElementById('hero-badge').textContent = disc;
+  document.getElementById('hero-meta').textContent = 'Dine-in · ' + (r.city || 'Charleston');
+  document.getElementById('hero-spots').textContent = spots;
+  document.getElementById('hero-bar').style.width = pct + '%';
+
+  const btn = document.getElementById('hero-btn');
+  const alreadyClaimed = myClaims.find(c => c.offer_id === offer.id);
+  if (alreadyClaimed) { btn.textContent = '✓ Claimed'; btn.classList.add('claimed'); }
+  else { btn.textContent = 'Claim Drop →'; btn.classList.remove('claimed'); }
+}
+
+function renderDropCards(offers) {
+  const container = document.getElementById('drops-list');
+  if (offers.length <= 1) { container.innerHTML = ''; return; } // only hero if 1 offer
+
+  // Show all offers as cards (skip first one if it's already the hero, unless there's only 1)
+  const cardsToShow = offers.length > 1 ? offers.slice(1) : offers;
+  if (cardsToShow.length === 0) { container.innerHTML = ''; return; }
+
+  container.innerHTML = '';
+  cardsToShow.forEach(offer => {
+    const r = offer.restaurants || {};
+    const spots = (offer.max_claims || 10) - (offer.current_claims || 0);
+    const isCrit = spots <= 2;
+    const pct = Math.round(((offer.current_claims || 0) / (offer.max_claims || 10)) * 100);
+    const disc = offerDiscount(offer);
+    const emoji = offerEmoji(offer);
+    const alreadyClaimed = myClaims.find(c => c.offer_id === offer.id);
+
+    let tagClass = 'dc-tag-pct';
+    if (offer.discount_type === 'free_item') tagClass = 'dc-tag-free';
+    if (offer.discount_type === 'dollar_off') tagClass = 'dc-tag-dol';
+    if (isCrit) tagClass = 'dc-tag-crit';
+
+    const card = document.createElement('div');
+    card.className = 'dc' + (isCrit ? ' crit' : '');
+    card.innerHTML = `
+      <div class="dc-img">
+        <span>${emoji}</span>
+        <div class="dc-img-ov"></div>
+        <div class="dc-img-rest">${r.name || 'Restaurant'}</div>
+        <div class="dc-img-tag ${tagClass}">${isCrit ? '⚡ Almost Gone' : disc}</div>
+        <div class="dc-spots"><div class="dc-sn ${isCrit ? 'crit' : ''}">${spots}</div><div class="dc-sl">left</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-rest">${r.name || 'Restaurant'}</div>
+        <div class="dc-dist">📍 ${r.city || 'Charleston'} · ${r.cuisine_type || 'Restaurant'}</div>
+        <div class="dc-deal">${offer.title}</div>
+        <div class="dc-foot">
+          <div class="bar-w">
+            <div class="bar-bg"><div class="bar-f ${isCrit ? 'low' : ''}" style="width:${pct}%"></div></div>
+            <div class="bar-t">${offer.current_claims || 0} of ${offer.max_claims || 10} claimed</div>
+          </div>
+          <button class="cbtn ${alreadyClaimed ? 'claimed' : ''}" data-offer-id="${offer.id}"
+            onclick="event.stopPropagation();claimOffer('${offer.id}',this)">
+            ${alreadyClaimed ? '✓ Claimed' : 'Claim'}
+          </button>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+// ── CLAIM ──
+async function heroClaimClick() {
+  const btn = document.getElementById('hero-btn');
+  if (!heroOfferId) return;
+  await claimOffer(heroOfferId, btn);
+}
+
+async function claimOffer(offerId, btn) {
+  if (myClaims.find(c => c.offer_id === offerId)) {
+    showToast('Already in your drops!', 'Tap My Drops to see your QR code');
+    return;
+  }
+  btn.textContent = '...'; btn.disabled = true;
+
+  const token = 'SZ-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+  const claimData = { offer_id: offerId, qr_token: token, status: 'active' };
+  if (currentUser) claimData.diner_id = currentUser.id;
+
+  try {
+    const { data: claim, error } = await sb.from('claims').insert(claimData).select().single();
+    if (claim) myClaims.push(claim);
+  } catch(e) {}
+
+  btn.textContent = '✓ Claimed'; btn.classList.add('claimed'); btn.disabled = false;
+  showToast('Drop Claimed! 🔥', 'Tap View to see your QR code');
+}
+
+// ── LOAD MY CLAIMS ──
+async function loadMyClaims() {
+  if (!currentUser) return;
+  try {
+    const { data } = await sb.from('claims')
+      .select('*, offers(title, discount_type, discount_value, free_item_name, starts_at, ends_at, restaurants(name, cuisine_type))')
+      .eq('diner_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    if (data) myClaims = data;
+  } catch(e) {}
+}
+
+// ── RENDER MY DROPS ──
+function renderMyDrops() {
+  const active = myClaims.filter(c => c.status === 'active');
+  const redeemed = myClaims.filter(c => c.status === 'redeemed');
+  const expired = myClaims.filter(c => c.status === 'expired');
+
+  document.getElementById('my-drops-sub').textContent =
+    active.length + ' active · ' + redeemed.length + ' redeemed';
+
+  renderClaimList('ml-active', active, 'active');
+  renderClaimList('ml-redeemed', redeemed, 'redeemed');
+  renderClaimList('ml-expired', expired, 'expired');
+}
+
+function renderClaimList(containerId, claims, type) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (claims.length === 0) {
+    const msgs = {
+      active: { icon: '🎫', text: 'No active drops yet.\nClaim an offer to get started.', btn: true },
+      redeemed: { icon: '✅', text: "Redeemed drops will\nappear here.", btn: false },
+      expired: { icon: '⏱', text: "Expired drops will\nappear here.", btn: false }
+    };
+    const m = msgs[type];
+    el.innerHTML = `<div class="empty-state">
+      <div class="es-icon">${m.icon}</div>
+      <div class="es-txt">${m.text.replace('\n','<br>')}</div>
+      ${m.btn ? '<div class="es-btn" onclick="navTo(\'discover\',document.getElementById(\'nav-discover\'))">Browse Drops →</div>' : ''}
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = '';
+  claims.forEach(claim => {
+    const offer = claim.offers || {};
+    const r = (offer.restaurants) || {};
+    const disc = offer.discount_type === 'pct_off' ? offer.discount_value + '% Off' :
+                 offer.discount_type === 'dollar_off' ? '$' + offer.discount_value + ' Off' : 'Free Item';
+
+    const badgeClass = type === 'active' ? 'mb-live' : type === 'redeemed' ? 'mb-used' : 'mb-gone';
+    const badgeText = type === 'active' ? 'Live' : type === 'redeemed' ? '✓ Used' : 'Expired';
+    const cardClass = type === 'active' ? 'mc' : type === 'redeemed' ? 'mc redeemed' : 'mc expired';
+
+    const endsAt = offer.ends_at ? new Date(offer.ends_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : 'tonight';
+
+    const div = document.createElement('div');
+    div.className = cardClass;
+    div.innerHTML = `
+      <div class="mc-top">
+        <div class="mc-img">🍽</div>
+        <div class="mc-info">
+          <div class="mc-rest">${r.name || 'Restaurant'}</div>
+          <div class="mc-deal">${disc} · ${offer.title || ''}</div>
+          <div class="mc-status-row">
+            <span class="mbadge ${badgeClass}">${badgeText}</span>
+            <span style="font-size:10px;color:rgba(255,255,255,.22)">
+              ${type === 'active' ? 'Ends ' + endsAt : type === 'redeemed' ? 'Redeemed' : 'Expired'}
+            </span>
+          </div>
+        </div>
+      </div>
+      ${type === 'active' ? `
+      <div class="mc-qr" onclick="showQR('${claim.qr_token}','${(r.name||'').replace(/'/g,"\\'")}','${disc}')">
+        <div class="qr-icon">▦</div>
+        <div class="qr-info">
+          <div class="qr-title">Show QR at host stand</div>
+          <div class="qr-sub">One use · Cannot combine · Valid tonight</div>
+        </div>
+        <div class="qr-arrow">›</div>
+      </div>` : ''}`;
+    el.appendChild(div);
+  });
+}
+
+// ── QR SCREEN ──
+function showQR(token, restName, discount) {
+  document.getElementById('qr-rest').textContent = restName || 'Restaurant';
+  document.getElementById('qr-discount').textContent = discount;
+  document.getElementById('qr-token').textContent = token || 'SZ-DEMO';
+  document.getElementById('qrScreen').classList.add('open');
+}
+function closeQR() { document.getElementById('qrScreen').classList.remove('open'); }
+
+// ── TOAST ──
+function showToast(title, sub) {
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent = sub;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+function hideToast() { document.getElementById('toast').classList.remove('show'); }
+
+// ── STATUS PAGE ──
+function renderStatusPage() {
+  const name = dinerProfile?.full_name || (currentUser?.email?.split('@')[0]) || 'Guest';
+  const tier = dinerProfile?.tier || 'spark';
+  const pts = dinerProfile?.points || 0;
+  const lifetimePts = dinerProfile?.lifetime_points || 0;
+
+  document.getElementById('st-av').textContent = name[0].toUpperCase();
+  document.getElementById('st-name').textContent = name;
+
+  const tierMap = { spark: '⚡ Spark', sizzler: '🔥 Sizzler', inferno: '🌋 Inferno' };
+  document.getElementById('st-tier').textContent = tierMap[tier] || '⚡ Spark';
+  document.getElementById('st-pts').textContent = pts.toLocaleString();
+
+  const thresholds = { spark: 500, sizzler: 2000 };
+  const nextTier = { spark: 'Sizzler 🔥', sizzler: 'Inferno 🌋', inferno: null };
+  const thresh = thresholds[tier];
+  const ptsToGo = thresh ? Math.max(0, thresh - lifetimePts) : 0;
+  const pct = thresh ? Math.min(100, Math.round((lifetimePts / thresh) * 100)) : 100;
+
+  document.getElementById('st-next-label').textContent = nextTier[tier] ? 'Progress to ' + nextTier[tier] : 'Max tier reached 🌋';
+  document.getElementById('st-pts-to-go').textContent = ptsToGo > 0 ? ptsToGo.toLocaleString() + ' pts to go' : currentUser ? "You're crushing it" : 'Sign in to track progress';
+  document.getElementById('st-bar').style.width = pct + '%';
+
+  const redeemed = myClaims.filter(c => c.status === 'redeemed');
+  const saved = redeemed.reduce((s, c) => {
+    const o = c.offers || {};
+    return s + (o.discount_type === 'dollar_off' ? (o.discount_value || 0) : 0);
+  }, 0);
+  const uniqueRests = new Set(redeemed.map(c => c.offers?.restaurants?.name).filter(Boolean)).size;
+
+  document.getElementById('st-drops-used').textContent = redeemed.length;
+  document.getElementById('st-saved').textContent = '$' + saved;
+  document.getElementById('st-restaurants').textContent = uniqueRests;
+
+  // History
+  const histEl = document.getElementById('st-history');
+  if (redeemed.length === 0) {
+    histEl.innerHTML = `<div class="empty-state"><div class="es-icon">🍽</div><div class="es-txt">Claim your first drop to<br>start building your history</div></div>`;
+  } else {
+    histEl.innerHTML = redeemed.slice(0,10).map(c => {
+      const o = c.offers || {}; const r = o.restaurants || {};
+      const disc = o.discount_type === 'pct_off' ? o.discount_value + '% off' : o.discount_type === 'dollar_off' ? '$' + o.discount_value + ' off' : 'Free item';
+      const date = c.redeemed_at ? new Date(c.redeemed_at).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : 'Recently';
+      return `<div class="history-row">
+        <div class="history-icon">🍽</div>
+        <div class="history-info">
+          <div class="history-rest">${r.name || 'Restaurant'}</div>
+          <div class="history-deal">${o.title || disc}</div>
+          <div class="history-date">${date}</div>
+        </div>
+        <div class="history-saved">✓</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── INIT ──
+window.addEventListener('load', async () => {
+  await new Promise(r => setTimeout(r, 300));
+
+  // Load offers right away — no auth needed to browse
+  loadOffers();
+
+  // Check if already signed in
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      await loadProfile();
+      await loadMyClaims();
+      document.getElementById('authPg').classList.add('hidden');
+    }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>
