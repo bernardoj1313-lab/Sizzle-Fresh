@@ -596,6 +596,19 @@ async function doSignIn(){
   btn.textContent='Sign In →';btn.disabled=false;
   if(error){authErr('err-si',error.message);return;}
   // Session listener will pick it up and call enterApp
+}async function doForgotPassword(){
+  const em=document.getElementById('si-em').value.trim();
+  if(!em){
+    authErr('err-si','Type your email above first, then tap Forgot password');
+    return;
+  }
+  const redirectUrl = window.location.origin + window.location.pathname;
+  const {error} = await sb.auth.resetPasswordForEmail(em, {redirectTo: redirectUrl});
+  if(error){
+    authErr('err-si','Could not send reset email: '+error.message);
+    return;
+  }
+  showToast('Reset link sent','Check your email (and spam folder) for the link');
 }
 
 async function doSignUp(){
