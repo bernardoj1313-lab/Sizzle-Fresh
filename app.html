@@ -18,7 +18,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .pg::-webkit-scrollbar{display:none}
 .pg.active{display:block;animation:fu .22s ease}
 @keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
+ 
 /* NAV */
 .bnav{height:80px;background:#111;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-around;padding:0 8px 14px;flex-shrink:0;z-index:20}
 .ntab{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:10px 14px;border-radius:14px;transition:all .2s;flex:1}
@@ -27,7 +27,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .ntab.active .ntab-ic{transform:scale(1.1)}
 .ntab-lb{font-size:10px;font-weight:600;color:rgba(255,255,255,.28);letter-spacing:.5px;text-transform:uppercase}
 .ntab.active .ntab-lb{color:#ff5c1a}
-
+ 
 /* AUTH */
 .auth-pg{position:absolute;inset:0;background:#0d0d0d;z-index:9999;display:flex;flex-direction:column;overflow-y:auto;align-items:center}
 .auth-pg.hidden{display:none}
@@ -51,14 +51,14 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .auth-sep::before,.auth-sep::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
 .auth-guest{margin:0 24px 32px;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:12px;text-align:center;font-size:13px;color:rgba(255,255,255,.4);cursor:pointer;width:calc(100% - 48px)}
 .auth-guest b{color:#ff5c1a;font-weight:600}
-
+ 
 /* TOP BAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 8px;position:sticky;top:0;z-index:15;background:linear-gradient(to bottom,#0d0d0d 80%,transparent)}
 .topbar-logo svg{display:block}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .loc-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:6px 11px;font-size:11px;color:rgba(255,255,255,.65);font-weight:500;cursor:pointer}
 .av{width:32px;height:32px;background:linear-gradient(135deg,#ff5c1a,#ff8c42);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
-
+ 
 /* HERO */
 .hero{position:relative;margin:4px 16px 0;border-radius:22px;overflow:hidden;cursor:pointer;height:300px}
 .hero-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:90px;opacity:.55}
@@ -81,7 +81,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .hero-claim.claimed{background:#22c55e;color:#fff}
 .hprog{height:3px;background:rgba(255,255,255,.06);margin:6px 16px 0;border-radius:2px;overflow:hidden}
 .hprog-f{height:100%;background:#ff5c1a;border-radius:2px}
-
+ 
 /* OFFER TABS */
 .offer-tabs{display:flex;gap:8px;padding:16px 16px 10px;overflow-x:auto;scrollbar-width:none}
 .offer-tabs::-webkit-scrollbar{display:none}
@@ -89,7 +89,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .otab.active{background:#ff5c1a;border-color:#ff5c1a;color:#fff}
 .otab-count{background:rgba(255,255,255,.15);border-radius:10px;padding:1px 6px;font-size:10px}
 .otab.active .otab-count{background:rgba(255,255,255,.25)}
-
+ 
 /* OFFER CARDS */
 .cards{padding:0 16px 100px;display:flex;flex-direction:column;gap:11px}
 .oc{border-radius:18px;overflow:hidden;background:#161616;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:transform .18s,border-color .18s}
@@ -120,7 +120,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .cbtn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:9px;padding:8px 16px;font-size:11px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 .cbtn:hover:not(.claimed){background:#ff5c1a;border-color:#ff5c1a}
 .cbtn.claimed{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:#22c55e}
-
+ 
 /* REDEEMED CARD */
 .rc{border-radius:18px;overflow:hidden;background:#161616;border:1px solid rgba(34,197,94,.15);cursor:pointer}
 .rc-top{display:flex;align-items:stretch}
@@ -130,7 +130,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .rc-deal{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px}
 .rc-date{font-size:10px;color:rgba(255,255,255,.22)}
 .rc-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:5px;background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
-
+ 
 /* ACTIVE CLAIM CARD */
 .ac{border-radius:18px;overflow:hidden;background:#161616;border:1px solid rgba(255,92,26,.2)}
 .ac-top{display:flex;align-items:stretch}
@@ -148,7 +148,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .ac-qr-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
 .ac-qr-sub{font-size:11px;color:rgba(255,255,255,.3)}
 .ac-qr-arrow{font-size:22px;color:#ff5c1a;font-weight:700}
-
+ 
 /* OFFER DETAIL SHEET */
 .sheet{position:absolute;inset:0;z-index:200;display:none;flex-direction:column}
 .sheet.open{display:flex;animation:su .28s cubic-bezier(.32,.72,0,1)}
@@ -184,7 +184,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .sheet-cta.claimed{background:#22c55e}
 .sheet-cta.view-qr{background:#1a1a2e;border:1px solid rgba(255,92,26,.4);color:#ff5c1a}
 .sheet-cta-note{text-align:center;font-size:11px;color:rgba(255,255,255,.22)}
-
+ 
 /* QR SCREEN */
 .qrs{position:absolute;inset:0;background:#06090f;z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px}
 .qrs.open{display:flex;animation:fu .2s ease}
@@ -198,7 +198,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .qrs-token-val{font-family:monospace;font-size:15px;color:#ff5c1a;letter-spacing:2px}
 .qrs-terms{font-size:12px;color:#4a5a70;margin-bottom:22px;text-align:center;line-height:1.5}
 .qrs-close{width:100%;max-width:300px;padding:14px;background:#ff5c1a;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
-
+ 
 /* PROFILE PAGE */
 .profile-hero{padding:24px 20px 20px;background:#111;border-bottom:1px solid rgba(255,92,26,.1);position:relative;overflow:hidden}
 .profile-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(255,92,26,.1) 0%,transparent 60%)}
@@ -238,7 +238,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .history-date{font-size:10px;color:rgba(255,255,255,.2);margin-top:1px}
 .history-check{font-size:18px;color:#22c55e}
 .pb100{padding-bottom:100px}
-
+ 
 /* LOCATION PICKER */
 .loc-sheet{position:absolute;inset:0;z-index:300;display:none;flex-direction:column}
 .loc-sheet.open{display:flex;animation:su .25s cubic-bezier(.32,.72,0,1)}
@@ -251,7 +251,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .loc-option-name{font-size:14px;font-weight:600;color:#fff}
 .loc-option-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
 .loc-check{font-size:18px;color:#ff5c1a;margin-left:auto}
-
+ 
 /* TOAST */
 .toast{position:absolute;top:14px;left:14px;right:14px;z-index:400;background:#ff5c1a;border-radius:14px;padding:12px 14px;display:none;align-items:center;gap:10px;box-shadow:0 8px 30px rgba(255,92,26,.5)}
 .toast.show{display:flex;animation:td .22s ease}
@@ -261,13 +261,13 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 .toast-title{font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;letter-spacing:.5px}
 .toast-sub{font-size:11px;color:rgba(255,255,255,.8);margin-top:1px}
 .toast-action{background:rgba(255,255,255,.22);color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
-
+ 
 /* EMPTY STATE */
 .empty{padding:40px 20px;text-align:center}
 .empty-icon{font-size:40px;margin-bottom:12px}
 .empty-txt{font-size:13px;color:rgba(255,255,255,.28);line-height:1.6}
 .empty-btn{margin-top:16px;display:inline-block;padding:10px 24px;background:#ff5c1a;color:#fff;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
-
+ 
 /* SIGN IN WALL */
 .signin-wall{margin:16px;background:rgba(255,92,26,.06);border:1px solid rgba(255,92,26,.14);border-radius:16px;padding:20px;text-align:center}
 .sw-txt{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.5}
@@ -278,7 +278,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
 <div class="phone">
   <div class="sbar"><div class="sbar-t">9:41</div><div class="sbar-i"><span>▲▲▲</span><span>WiFi</span><span>🔋</span></div></div>
   <div class="screen">
-
+ 
   <!-- AUTH -->
   <div class="auth-pg" id="authPg">
     <div class="auth-top">
@@ -312,7 +312,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
     <div class="auth-sep">or</div>
     <div class="auth-guest" onclick="doGuest()">Browse offers as guest · <b>Explore now</b></div>
   </div>
-
+ 
   <!-- TOAST -->
   <div class="toast" id="toast">
     <div class="toast-icon">🔥</div>
@@ -322,7 +322,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
     </div>
     <button class="toast-action" onclick="goToOffers()">View →</button>
   </div>
-
+ 
   <!-- QR SCREEN -->
   <div class="qrs" id="qrs">
     <div class="qrs-x" onclick="closeQR()">✕</div>
@@ -346,7 +346,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
     <div class="qrs-terms">Dine-in only · One use per table · Valid tonight only</div>
     <button class="qrs-close" onclick="closeQR()">Close</button>
   </div>
-
+ 
   <!-- OFFER DETAIL SHEET -->
   <div class="sheet" id="sheet">
     <div class="sheet-bd" onclick="closeSheet()"></div>
@@ -380,7 +380,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
       </div>
     </div>
   </div>
-
+ 
   <!-- LOCATION PICKER -->
   <div class="loc-sheet" id="locSheet">
     <div class="loc-bd" onclick="closeLoc()"></div>
@@ -390,7 +390,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
       <div id="loc-options"></div>
     </div>
   </div>
-
+ 
   <!-- DISCOVER PAGE -->
   <div class="pg active" id="pg-discover">
     <div class="topbar">
@@ -403,7 +403,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
         <div class="av" id="user-av" onclick="avatarTap()">S</div>
       </div>
     </div>
-
+ 
     <div class="hero" id="hero" onclick="heroTap()">
       <div class="hero-bg" id="hero-bg-color"><span id="hero-emoji">🍽</span></div>
       <div class="hero-grad"></div>
@@ -422,14 +422,14 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
       </div>
     </div>
     <div class="hprog"><div class="hprog-f" id="hero-prog" style="width:0%"></div></div>
-
+ 
     <div class="offer-tabs" id="offer-tabs">
       <div class="otab active" id="otab-live" onclick="switchOfferTab('live',this)">🔥 Live <span class="otab-count" id="otab-live-count">0</span></div>
       <div class="otab" id="otab-tonight" onclick="switchOfferTab('tonight',this)">🌙 All Tonight</div>
       <div class="otab" id="otab-lunch" onclick="switchOfferTab('lunch',this)">☀️ Lunch</div>
       <div class="otab" id="otab-hh" onclick="switchOfferTab('hh',this)">🍹 Happy Hour</div>
     </div>
-
+ 
     <div class="cards" id="cards-live">
       <div style="padding:32px 0;text-align:center;color:rgba(255,255,255,.28)">
         <div style="font-size:30px;margin-bottom:10px">🔥</div>
@@ -444,7 +444,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
       <div class="empty"><div class="empty-icon">🍹</div><div class="empty-txt">No happy hour offers right now.<br>Check back around 3pm!</div></div>
     </div>
   </div>
-
+ 
   <!-- MY OFFERS PAGE -->
   <div class="pg" id="pg-offers">
     <div class="topbar" style="padding-top:18px">
@@ -460,7 +460,7 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
     <div style="padding:8px 16px 100px;display:none" id="my-redeemed-list"></div>
     <div style="padding:8px 16px 100px;display:none" id="my-expired-list"></div>
   </div>
-
+ 
   <!-- PROFILE PAGE -->
   <div class="pg" id="pg-profile">
     <div class="profile-hero">
@@ -507,27 +507,27 @@ body{background:#080808;display:flex;justify-content:center;align-items:center;m
       </div>
     </div>
   </div>
-
+ 
   </div><!-- end screen -->
-
+ 
   <div class="bnav">
     <div class="ntab active" id="nav-discover" onclick="navTo('discover',this)"><div class="ntab-ic">🔥</div><div class="ntab-lb">Discover</div></div>
     <div class="ntab" id="nav-offers" onclick="navTo('offers',this)"><div class="ntab-ic">🎫</div><div class="ntab-lb">My Offers</div></div>
     <div class="ntab" id="nav-profile" onclick="navTo('profile',this)"><div class="ntab-ic">⚡</div><div class="ntab-lb">Profile</div></div>
   </div>
 </div>
-
+ 
 <script>
 const SB_URL='https://blppzhzoszmpqdwxhcbj.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJscHB6aHpvc3ptcHFkd3hoY2JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyODQ3MDIsImV4cCI6MjA4OTg2MDcwMn0.JxI9WLP_yPc6tyFCoLjUuELqph9rPCd6V9EnS0A8k5E';
 const sb=supabase.createClient(SB_URL,SB_KEY);
-
+ 
 // ── STATE ──
 let user=null,profile=null,liveOffers=[],myClaims=[],heroOffer=null,sheetOffer=null;
 let currentLocation='Charleston';
 let currentOfferTab='live';
 let currentMyTab='active';
-
+ 
 // Demo restaurants — real local Charleston spots
 // Demo offers — real local Charleston spots that actually need help filling seats
 const DEMO_OFFERS=[
@@ -538,12 +538,12 @@ const DEMO_OFFERS=[
   {id:'d5',restaurant_id:'r5',title:'25% Off — Slow Lunch Special',discount_type:'pct_off',discount_value:25,max_claims:15,current_claims:8,status:'active',operator_notes:"Best brunch in Charleston, hands down. We also do dinner and we're way too quiet on weeknights. Come fix that.",ends_at:new Date(Date.now()+2*3600000).toISOString(),restaurants:{name:"Park & Grove",cuisine_type:'Brunch · All-Day Dining',city:'Charleston',address:'730 Rutledge Ave'}},
   {id:'d6',restaurant_id:'r6',title:"Two-Course Dinner — $20 Off",discount_type:'dollar_off',discount_value:20,max_claims:5,current_claims:1,status:'active',operator_notes:"Strip center in Hanahan but don't let that fool you. Proper Italian — wood-fired pizza, fresh pasta, slow-braised everything. Tonight is quiet.",ends_at:new Date(Date.now()+5*3600000).toISOString(),restaurants:{name:"Cane Pazzo",cuisine_type:'Italian · Wood-Fired',city:'Hanahan',address:'1276 Yeamans Hall Rd'}},
 ];
-
+ 
 const EMOJI_MAP={'Xiao Bao Biscuit':'🥢','Jackrabbit Filly':'🥟','Herd Provisions':'🥩',"Hannibal's Kitchen":'🍛','Park & Grove':'🍳','Cane Pazzo':'🍕'};
 const COLOR_MAP={'Xiao Bao Biscuit':'#1a0d0d','Jackrabbit Filly':'#0d1a0d',"Herd Provisions":'#0a150a',"Hannibal's Kitchen":'#1a0e06','Park & Grove':'#0d0d1a','Cane Pazzo':'#1a0a06'};
-
+ 
 const LOCATIONS=['Charleston','Mount Pleasant','West Ashley','James Island','North Charleston'];
-
+ 
 // ── NAVIGATION ──
 function navTo(page,el){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
@@ -553,9 +553,9 @@ function navTo(page,el){
   if(page==='offers') renderMyOffers();
   if(page==='profile') renderProfile();
 }
-
+ 
 function goToOffers(){navTo('offers',document.getElementById('nav-offers'));hideToast();}
-
+ 
 // ── AUTH TABS ──
 function switchAuthTab(t){
   ['si','su'].forEach(x=>{
@@ -563,7 +563,7 @@ function switchAuthTab(t){
     document.getElementById('form-'+x).style.display=x===t?'block':'none';
   });
 }
-
+ 
 // ── AUTH ──
 async function doSignIn(){
   const em=document.getElementById('si-em').value.trim();
@@ -575,7 +575,7 @@ async function doSignIn(){
   if(error){authErr('err-si',error.message);btn.textContent='Sign In →';btn.disabled=false;return;}
   user=data.user;await loadProfile();enterApp();
 }
-
+ 
 async function doSignUp(){
   const nm=document.getElementById('su-nm').value.trim();
   const em=document.getElementById('su-em').value.trim();
@@ -591,39 +591,39 @@ async function doSignUp(){
     profile={full_name:nm,tier:'spark',points:0,lifetime_points:0};}catch(e){}
   setAv(nm);enterApp();
 }
-
+ 
 async function doGuest(){
   try{const{data}=await sb.auth.signInAnonymously();if(data?.user)user=data.user;}catch(e){}
   enterApp();
 }
-
+ 
 function enterApp(){
   document.getElementById('authPg').classList.add('hidden');
   loadOffers();
   if(user) loadMyClaims();
 }
-
+ 
 function authErr(id,msg){
   const el=document.getElementById(id);el.textContent=msg;el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),4000);
 }
-
+ 
 function avatarTap(){if(!user) document.getElementById('authPg').classList.remove('hidden');}
-
+ 
 // ── PROFILE LOAD ──
 async function loadProfile(){
   if(!user) return;
   try{const{data}=await sb.from('diners').select('*').eq('auth_user_id',user.id).single();
     if(data){profile=data;setAv(data.full_name);}}catch(e){}
 }
-
+ 
 function setAv(name){
   const av=document.getElementById('user-av');
   if(av&&name) av.textContent=name[0].toUpperCase();
   const pav=document.getElementById('pav');
   if(pav&&name) pav.textContent=name[0].toUpperCase();
 }
-
+ 
 // ── OFFER UTILS ──
 function getEmoji(o){return EMOJI_MAP[o.restaurants?.name]||'🍽';}
 function getColor(o){return COLOR_MAP[o.restaurants?.name]||'#141c2e';}
@@ -643,7 +643,7 @@ function getSpots(o){return Math.max(0,(o.max_claims||10)-(o.current_claims||0))
 function getPct(o){return Math.round(((o.current_claims||0)/(o.max_claims||10))*100);}
 function getEnds(o){return o.ends_at?new Date(o.ends_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'tonight';}
 function isClaimed(offerId){return !!myClaims.find(c=>c.offer_id===offerId);}
-
+ 
 // ── LOAD OFFERS ──
 async function loadOffers(){
   try{
@@ -655,7 +655,7 @@ async function loadOffers(){
     const liveFromDB=(!error&&offers&&offers.length>0)?offers:[];
     liveOffers=[...liveFromDB,...DEMO_OFFERS];
   }catch(e){liveOffers=DEMO_OFFERS;}
-
+ 
   document.getElementById('otab-live-count').textContent=liveOffers.length;
   if(liveOffers.length>0){
     renderHero(liveOffers[0]);
@@ -663,7 +663,7 @@ async function loadOffers(){
     renderCards('cards-tonight',liveOffers);
   }
 }
-
+ 
 // ── HERO ──
 function renderHero(offer){
   heroOffer=offer;
@@ -682,10 +682,10 @@ function renderHero(offer){
   if(isClaimed(offer.id)){btn.textContent='✓ Claimed';btn.classList.add('claimed');}
   else{btn.textContent='Claim →';btn.classList.remove('claimed');}
 }
-
+ 
 function heroTap(){if(heroOffer) openSheet(heroOffer);}
 async function heroClaim(){if(heroOffer) await claimOffer(heroOffer.id,document.getElementById('hero-claim-btn'));}
-
+ 
 // ── OFFER TABS ──
 function switchOfferTab(tab,el){
   currentOfferTab=tab;
@@ -696,7 +696,7 @@ function switchOfferTab(tab,el){
     if(el) el.style.display=t===tab?'flex':'none';
   });
 }
-
+ 
 // ── RENDER CARDS ──
 function renderCards(containerId,offers){
   const container=document.getElementById(containerId);
@@ -747,7 +747,7 @@ function renderCards(containerId,offers){
     container.appendChild(div);
   });
 }
-
+ 
 // ── OFFER DETAIL SHEET ──
 function openSheet(offer){
   sheetOffer=offer;
@@ -757,14 +757,14 @@ function openSheet(offer){
   const pct=getPct(offer);
   const disc=getDiscount(offer);
   const claimed=isClaimed(offer.id);
-
+ 
   document.getElementById('sheet-emoji').textContent=getEmoji(offer);
   document.getElementById('sheet-hero').style.background=getColor(offer);
   document.getElementById('sheet-rest-name').textContent=r.name||'Restaurant';
   document.getElementById('sheet-rest-sub').textContent=(r.cuisine_type||'Restaurant')+' · 📍 '+(r.address||r.city||'Charleston');
   document.getElementById('sheet-offer-title').textContent=disc;
   document.getElementById('sheet-offer-desc').textContent=offer.operator_notes||('Limited to '+offer.max_claims+' claims. Valid tonight only. Dine-in only.');
-
+ 
   // Pills
   const ends=getEnds(offer);
   document.getElementById('sheet-pills').innerHTML=
@@ -772,14 +772,14 @@ function openSheet(offer){
      <div class="sheet-pill">⏱ Ends ${ends}</div>
      <div class="sheet-pill">🍽 Dine-in only</div>
      <div class="sheet-pill">👥 Max ${offer.max_claims||10} claims</div>`;
-
+ 
   // Spots
   const sn=document.getElementById('sheet-spots-n');
   sn.textContent=spots;sn.className='sheet-spots-n'+(isCrit?' crit':'');
   const fill=document.getElementById('sheet-spots-fill');
   fill.style.width=pct+'%';fill.className='sheet-spots-fill'+(isCrit?' low':'');
   document.getElementById('sheet-spots-sub').textContent=(offer.current_claims||0)+' of '+(offer.max_claims||10)+' claimed tonight';
-
+ 
   // CTA state
   const cta=document.getElementById('sheet-cta');
   const note=document.getElementById('sheet-cta-note');
@@ -792,12 +792,12 @@ function openSheet(offer){
     cta.className='sheet-cta';
     note.textContent='Free · No credit card needed';
   }
-
+ 
   document.getElementById('sheet').classList.add('open');
 }
-
+ 
 function closeSheet(){document.getElementById('sheet').classList.remove('open');sheetOffer=null;}
-
+ 
 async function sheetAction(){
   if(!sheetOffer) return;
   const cta=document.getElementById('sheet-cta');
@@ -813,7 +813,7 @@ async function sheetAction(){
   await claimOffer(sheetOffer.id,cta);
   closeSheet();
 }
-
+ 
 // ── CLAIM ──
 async function claimOffer(offerId,btn){
   if(isClaimed(offerId)){showToast('Already claimed!','Tap View to open your QR code');return;}
@@ -830,7 +830,7 @@ async function claimOffer(offerId,btn){
   document.getElementById('mytab-active-count').textContent=myClaims.filter(c=>c.status==='active').length;
   showToast('Offer Claimed! 🔥','Show your QR code at the host stand');
 }
-
+ 
 // ── QR ──
 function showQR(token,rest,disc){
   document.getElementById('qrs-rest').textContent=rest;
@@ -839,7 +839,7 @@ function showQR(token,rest,disc){
   document.getElementById('qrs').classList.add('open');
 }
 function closeQR(){document.getElementById('qrs').classList.remove('open');}
-
+ 
 // ── TOAST ──
 function showToast(title,sub){
   document.getElementById('toast-title').textContent=title;
@@ -848,7 +848,7 @@ function showToast(title,sub){
   clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),5000);
 }
 function hideToast(){document.getElementById('toast').classList.remove('show');}
-
+ 
 // ── MY OFFERS ──
 async function loadMyClaims(){
   if(!user) return;
@@ -860,7 +860,7 @@ async function loadMyClaims(){
     if(data) myClaims=data;
   }catch(e){}
 }
-
+ 
 function switchMyTab(tab,el){
   currentMyTab=tab;
   document.querySelectorAll('.otab[id^="mytab-"]').forEach(t=>t.classList.remove('active'));
@@ -870,7 +870,7 @@ function switchMyTab(tab,el){
     if(el) el.style.display=t===tab?'block':'none';
   });
 }
-
+ 
 function renderMyOffers(){
   if(!user){
     ['active','redeemed','expired'].forEach(t=>{
@@ -879,20 +879,20 @@ function renderMyOffers(){
     });
     return;
   }
-
+ 
   const active=myClaims.filter(c=>c.status==='active');
   const redeemed=myClaims.filter(c=>c.status==='redeemed');
   const expired=myClaims.filter(c=>c.status==='expired');
-
+ 
   document.getElementById('my-offers-count').textContent=active.length+' active';
   document.getElementById('mytab-active-count').textContent=active.length;
   document.getElementById('mytab-redeemed-count').textContent=redeemed.length;
-
+ 
   renderActiveList(active);
   renderRedeemedList(redeemed);
   renderExpiredList(expired);
 }
-
+ 
 function renderActiveList(claims){
   const el=document.getElementById('my-active-list');
   if(!claims.length){
@@ -931,7 +931,7 @@ function renderActiveList(claims){
     el.appendChild(div);
   });
 }
-
+ 
 function renderRedeemedList(claims){
   const el=document.getElementById('my-redeemed-list');
   if(!claims.length){el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">No redeemed offers yet.<br>Head out tonight and use one!</div></div>';return;}
@@ -945,7 +945,7 @@ function renderRedeemedList(claims){
     el.appendChild(div);
   });
 }
-
+ 
 function renderExpiredList(claims){
   const el=document.getElementById('my-expired-list');
   if(!claims.length){el.innerHTML='<div class="empty"><div class="empty-icon">⏱</div><div class="empty-txt">No expired offers.</div></div>';return;}
@@ -958,20 +958,20 @@ function renderExpiredList(claims){
     el.appendChild(div);
   });
 }
-
+ 
 // ── PROFILE ──
 function renderProfile(){
   const name=profile?.full_name||(user?.email?.split('@')[0])||'Guest';
   const tier=profile?.tier||'spark';
   const pts=profile?.points||0;
   const lifePts=profile?.lifetime_points||0;
-
+ 
   document.getElementById('pav').textContent=name[0].toUpperCase();
   document.getElementById('pname').textContent=name;
   const tierMap={spark:'⚡ Spark',sizzler:'🔥 Sizzler',inferno:'🌋 Inferno'};
   document.getElementById('ptier').textContent=tierMap[tier]||'⚡ Spark';
   document.getElementById('profile-pts').textContent=pts.toLocaleString();
-
+ 
   const thresh={spark:500,sizzler:2000}[tier];
   const nextName={spark:'Sizzler 🔥',sizzler:'Inferno 🌋',inferno:null}[tier];
   const ptsToGo=thresh?Math.max(0,thresh-lifePts):0;
@@ -979,14 +979,14 @@ function renderProfile(){
   document.getElementById('progress-next-label').textContent=nextName?'Progress to '+nextName:'Max tier reached 🌋';
   document.getElementById('progress-ptogo').textContent=ptsToGo>0?ptsToGo.toLocaleString()+' pts to Sizzler':user?"You're on a roll":'Sign in to track progress';
   document.getElementById('progress-bar-f').style.width=pct+'%';
-
+ 
   const redeemed=myClaims.filter(c=>c.status==='redeemed');
   const saved=redeemed.reduce((s,c)=>{const o=c.offers||{};return s+(o.discount_type==='dollar_off'?(o.discount_value||0):0);},0);
   const rests=new Set(redeemed.map(c=>c.offers?.restaurants?.name).filter(Boolean)).size;
   document.getElementById('p-used').textContent=redeemed.length;
   document.getElementById('p-saved').textContent='$'+saved;
   document.getElementById('p-rests').textContent=rests;
-
+ 
   // History
   const hel=document.getElementById('history-list');
   if(!redeemed.length){
@@ -1000,7 +1000,7 @@ function renderProfile(){
     }).join('');
   }
 }
-
+ 
 // ── LOCATION ──
 function openLoc(){
   const container=document.getElementById('loc-options');
@@ -1014,15 +1014,15 @@ function openLoc(){
     </div>`).join('');
   document.getElementById('locSheet').classList.add('open');
 }
-
+ 
 function selectLoc(loc){
   currentLocation=loc;
   document.getElementById('loc-label').textContent=loc;
   closeLoc();
 }
-
+ 
 function closeLoc(){document.getElementById('locSheet').classList.remove('open');}
-
+ 
 // ── INIT ──
 window.addEventListener('load',async()=>{
   await new Promise(r=>setTimeout(r,300));
