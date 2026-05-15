@@ -893,8 +893,19 @@ async function claimOffer(offerId,btn){
   const orig=btn.textContent;
   btn.textContent='...';btn.disabled=true;
 
+  // Defensive: re-resolve dinerId in case state was lost
+  if(!dinerId && user){
+    try{
+      const {data:resolvedId} = await sb.rpc('ensure_diner_profile',{
+        p_full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Diner',
+        p_email: user.email || ''
+      });
+      if(resolvedId) dinerId = resolvedId;
+    }catch(e){console.error('ensure_diner_profile fallback:',e);}
+  }
+
   try{
-    const{data,error}=await sb.rpc('claim_offer',{p_offer_id:offerId,p_qr_ttl_minutes:240});
+    const{data,error}=await sb.rpc('claim_offer',{p_offer_id:offerId,p_qr_ttl_minutes:240,p_diner_id:dinerId});
     if(error){
       // Friendly error messages
       const msgMap={
